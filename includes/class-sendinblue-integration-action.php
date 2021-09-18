@@ -65,10 +65,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		$widget->add_control(
 			'sendinblue_double_optin',
 			[
-				'label' => __( 'Double optin', 'sendinblue-elementor-integration' ),
+				'label' => __( 'Double Optin', 'sendinblue-elementor-integration' ),
 				'type' => \Elementor\Controls_Manager::SWITCHER,
-				'separator' => 'before',
-				'description' => __( 'Single or double optin', 'sendinblue-elementor-integration' ),
+				'separator' => 'before'
 			]
 		);
 
