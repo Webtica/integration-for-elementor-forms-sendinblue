@@ -95,8 +95,19 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			]
 		);
 
+		$widget->add_control(
+			'sendinblue_last_name_field',
+			[
+				'label' => __( 'Lastname Field ID (Optional)', 'sendinblue-elementor-integration' ),
+				'type' => \Elementor\Controls_Manager::TEXT,
+				'placeholder' => 'lastname',
+				'separator' => 'before',
+				'description' => __( 'Enter the lastname field id - you can find this under the lastname field advanced tab', 'sendinblue-elementor-integration' ),
+			]
+		);
+
 		$widget->end_controls_section();
-		
+
 	}
 
 	/**
@@ -111,7 +122,8 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			$element['sendinblue_api'],
 			$element['sendinblue_list'],
 			$element['sendinblue_email_field'],
-			$element['sendinblue_name_field']
+			$element['sendinblue_name_field'],
+			$element['sendinblue_last_name_field']
 		);
 
 		return $element;
@@ -169,7 +181,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 	            'api-key' => $settings['sendinblue_api'],
 		    	'content-Type' => 'application/json',
 		    ],
-		    'body'        => json_encode(["attributes" => ["FIRSTNAME" => $fields[$settings['sendinblue_name_field']]],"updateEnabled" => true,"listIds" => [(int)$settings['sendinblue_list']],"email" => $fields[$settings['sendinblue_email_field']]])
+		    'body'        => json_encode(["attributes" => [ "FIRSTNAME" => $fields[$settings['sendinblue_name_field']], "LASTNAME" => $fields[$settings['sendinblue_last_name_field']] ],"updateEnabled" => true,"listIds" => [(int)$settings['sendinblue_list']],"email" => $fields[$settings['sendinblue_email_field']]])
 			)
 		);
 
