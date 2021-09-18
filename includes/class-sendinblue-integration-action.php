@@ -51,7 +51,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		);
 
 		$widget->add_control(
-			'sendinblue_url',
+			'sendinblue_api',
 			[
 				'label' => __( 'Sendinblue API key', 'sendinblue-elementor-integration' ),
 				'type' => \Elementor\Controls_Manager::TEXT,
@@ -87,7 +87,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		$widget->add_control(
 			'sendinblue_name_field',
 			[
-				'label' => __( 'Name Field ID', 'sendinblue-elementor-integration' ),
+				'label' => __( 'Name Field ID (Optional)', 'sendinblue-elementor-integration' ),
 				'type' => \Elementor\Controls_Manager::TEXT,
 				'placeholder' => 'name',
 				'separator' => 'before',
@@ -108,7 +108,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 	 */
 	public function on_export( $element ) {
 		unset(
-			$element['sendinblue_url'],
+			$element['sendinblue_api'],
 			$element['sendinblue_list'],
 			$element['sendinblue_email_field'],
 			$element['sendinblue_name_field']
@@ -130,7 +130,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		$settings = $record->get( 'form_settings' );
 
 		//  Make sure that there is a Sendy installation url
-		if ( empty( $settings['sendinblue_url'] ) ) {
+		if ( empty( $settings['sendinblue_api'] ) ) {
 			return;
 		}
 
@@ -162,7 +162,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 
 		// If we got this far we can start building our request data
 		// Based on the param list at https://sendy.co/api
-		$sendy_data = [
+		$sendinbluedata = [
 			'email' => $fields[ $settings['sendinblue_email_field'] ],
 			'list' => $settings['sendinblue_list'],
 			'ipaddress' => \ElementorPro\Classes\Utils::get_client_ip(),
@@ -175,7 +175,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		}
 
 		// Send the request
-		wp_remote_post( $settings['sendinblue_url'] . 'subscribe', [
+		wp_remote_post( $settings['sendinblue_api'] . 'subscribe', [
 			'body' => $sendy_data,
 		] );
 	}
