@@ -66,7 +66,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			'sendinblue_list',
 			[
 				'label' => __( 'Sendinblue List ID', 'sendinblue-elementor-integration' ),
-				'type' => \Elementor\Controls_Manager::TEXT,
+				'type' => \Elementor\Controls_Manager::NUMBER,
 				'placeholder' => '5',
 				'separator' => 'before',
 				'description' => __( 'Enter your list number', 'sendinblue-elementor-integration' ),
