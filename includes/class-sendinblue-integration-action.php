@@ -53,12 +53,12 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		$widget->add_control(
 			'sendinblue_url',
 			[
-				'label' => __( 'Sendy URL', 'sendinblue-elementor-integration' ),
+				'label' => __( 'Sendinblue API key', 'sendinblue-elementor-integration' ),
 				'type' => \Elementor\Controls_Manager::TEXT,
-				'placeholder' => 'http://your_sendy_installation/',
+				'placeholder' => 'xkeysib-xxxxxxxx',
 				'label_block' => true,
 				'separator' => 'before',
-				'description' => __( 'Enter the URL where you have Sendy installed', 'sendinblue-elementor-integration' ),
+				'description' => __( 'Enter your V3 API key from Sendinblue', 'sendinblue-elementor-integration' ),
 			]
 		);
 
@@ -67,8 +67,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			[
 				'label' => __( 'Sendinblue List ID', 'sendinblue-elementor-integration' ),
 				'type' => \Elementor\Controls_Manager::TEXT,
+				'placeholder' => '5',
 				'separator' => 'before',
-				'description' => __( 'the list id you want to subscribe a user to. This encrypted & hashed id can be found under View all lists section named ID.', 'sendinblue-elementor-integration' ),
+				'description' => __( 'Enter your list number', 'sendinblue-elementor-integration' ),
 			]
 		);
 
@@ -77,6 +78,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			[
 				'label' => __( 'Email Field ID', 'sendinblue-elementor-integration' ),
 				'type' => \Elementor\Controls_Manager::TEXT,
+				'placeholder' => 'email',
+				'separator' => 'before',
+				'description' => __( 'Enter the email field id - you can find this under the email field advanced tab', 'sendinblue-elementor-integration' ),
 			]
 		);
 
@@ -85,6 +89,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			[
 				'label' => __( 'Name Field ID', 'sendinblue-elementor-integration' ),
 				'type' => \Elementor\Controls_Manager::TEXT,
+				'placeholder' => 'name',
+				'separator' => 'before',
+				'description' => __( 'Enter the name field id - you can find this under the name field advanced tab', 'sendinblue-elementor-integration' ),
 			]
 		);
 
