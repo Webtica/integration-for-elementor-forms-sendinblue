@@ -129,23 +129,22 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 	public function run( $record, $ajax_handler ) {
 		$settings = $record->get( 'form_settings' );
 
-		//  Make sure that there is a Sendy installation url
+		//  Make sure that there is an Sendinblue API key set
 		if ( empty( $settings['sendinblue_api'] ) ) {
 			return;
 		}
 
-		//  Make sure that there is a Sendy list ID
+		//  Make sure that there is a Sendinblue list ID
 		if ( empty( $settings['sendinblue_list'] ) ) {
 			return;
 		}
 
-		// Make sure that there is a Sendy Email field ID
-		// which is required by Sendy's API to subsribe a user
+		// Make sure that there is a Sendinblue Email field ID
 		if ( empty( $settings['sendinblue_email_field'] ) ) {
 			return;
 		}
 
-		// Get sumitetd Form data
+		// Get submitted Form data
 		$raw_fields = $record->get( 'fields' );
 
 		// Normalize the Form Data
@@ -154,8 +153,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			$fields[ $id ] = $field['value'];
 		}
 
-		// Make sure that the user emtered an email
-		// which is required by Sendy's API to subsribe a user
+		// Make sure that the user has an email
 		if ( empty( $fields[ $settings['sendinblue_email_field'] ] ) ) {
 			return;
 		}
