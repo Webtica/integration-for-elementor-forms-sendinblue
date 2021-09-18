@@ -160,24 +160,37 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			return;
 		}
 
-		// If we got this far we can start building our request data
-		// Based on the param list at https://sendy.co/api
-		$sendinbluedata = [
-			'email' => $fields[ $settings['sendinblue_email_field'] ],
-			'list' => $settings['sendinblue_list'],
-			'ipaddress' => \ElementorPro\Classes\Utils::get_client_ip(),
-			'referrer' => isset( $_POST['referrer'] ) ? $_POST['referrer'] : '',
-		];
+		// Send data to Sendinblue
+		$curl = curl_init();
+		$datatosend = "{
+			\"attributes\":{
+				\"FIRSTNAME\":\"" . $fields[$settings['sendinblue_name_field']] . "\"
+			},
+			\"updateEnabled\":true,
+			\"listIds\":[" . $settings['sendinblue_list'] . "],
+			\"email\":\"" . $fields[$settings['sendinblue_email_field']] . "\"
+	    }";
 
-		// add name if field is mapped
-		if ( empty( $fields[ $settings['sendinblue_name_field'] ] ) ) {
-			$sendy_data['name'] = $fields[ $settings['sendinblue_name_field'] ];
-		}
+	    curl_setopt_array($curl, [
+	        CURLOPT_URL => "https://api.sendinblue.com/v3/contacts",
+	        CURLOPT_RETURNTRANSFER => true,
+	        CURLOPT_ENCODING => "",
+	        CURLOPT_MAXREDIRS => 10,
+	        CURLOPT_TIMEOUT => 30,
+	        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+	        CURLOPT_CUSTOMREQUEST => "POST",
+	        CURLOPT_POSTFIELDS => $datatosend,
+	        CURLOPT_HTTPHEADER     => array(
+	            "accept: application/json",
+	            "api-key:" . $settings['sendinblue_api'],
+	            "content-type: application/json",
+	        ),
+	    ]);
 
-		// Send the request
-		wp_remote_post( $settings['sendinblue_api'] . 'subscribe', [
-			'body' => $sendy_data,
-		] );
+	    // Send the request
+		error_log( print_r($datatosend, TRUE) );
+		curl_exec($curl);
+
 	}
 
 }
