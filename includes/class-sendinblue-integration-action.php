@@ -161,35 +161,19 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		}
 
 		// Send data to Sendinblue
-		$curl = curl_init();
-		$datatosend = "{
-			\"attributes\":{
-				\"FIRSTNAME\":\"" . $fields[$settings['sendinblue_name_field']] . "\"
-			},
-			\"updateEnabled\":true,
-			\"listIds\":[" . $settings['sendinblue_list'] . "],
-			\"email\":\"" . $fields[$settings['sendinblue_email_field']] . "\"
-	    }";
-
-	    curl_setopt_array($curl, [
-	        CURLOPT_URL => "https://api.sendinblue.com/v3/contacts",
-	        CURLOPT_RETURNTRANSFER => true,
-	        CURLOPT_ENCODING => "",
-	        CURLOPT_MAXREDIRS => 10,
-	        CURLOPT_TIMEOUT => 30,
-	        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-	        CURLOPT_CUSTOMREQUEST => "POST",
-	        CURLOPT_POSTFIELDS => $datatosend,
-	        CURLOPT_HTTPHEADER     => array(
-	            "accept: application/json",
-	            "api-key:" . $settings['sendinblue_api'],
-	            "content-type: application/json",
-	        ),
-	    ]);
-
-	    // Send the request
-		error_log( print_r($datatosend, TRUE) );
-		curl_exec($curl);
+		wp_remote_post( 'https://api.sendinblue.com/v3/contacts', array(
+			'method'      => 'POST',
+		    'timeout'     => 45,
+		    'httpversion' => '1.0',
+		    'blocking'    => false,
+		    'headers'     => [
+	            'accept' => 'application/json',
+	            'api-key' => $settings['sendinblue_api'],
+		    	'content-Type' => 'application/json',
+		    ],
+		    'body'        => json_encode(["attributes" => ["FIRSTNAME" => $fields[$settings['sendinblue_name_field']]],"updateEnabled" => true,"listIds" => [(int)$settings['sendinblue_list']],"email" => $fields[$settings['sendinblue_email_field']]])
+			)
+		);
 
 	}
 
