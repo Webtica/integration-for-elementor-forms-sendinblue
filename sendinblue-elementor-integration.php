@@ -13,6 +13,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; 
 }
 
+//load plugins functionallity
+require dirname(__FILE__).'/init-sendinblue-integration-action.php';
+
 //Check if Elementor pro is installed
 function sendinblue_integration_check_elementor_pro_is_active() {
 
