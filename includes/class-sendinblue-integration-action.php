@@ -96,7 +96,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		);
 
 		$widget->end_controls_section();
-
+		
 	}
 
 	/**
