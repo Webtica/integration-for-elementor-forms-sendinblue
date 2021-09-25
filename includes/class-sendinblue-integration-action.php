@@ -65,7 +65,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		$widget->add_control(
 			'sendinblue_double_optin',
 			[
-				'label' => __( 'Double Optin', 'sendinblue-elementor-integration' ),
+				'label' => __( 'Double Opt-in', 'sendinblue-elementor-integration' ),
 				'type' => \Elementor\Controls_Manager::SWITCHER,
 				'separator' => 'before'
 			]
@@ -74,11 +74,11 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		$widget->add_control(
 			'sendinblue_double_optin_template',
 			[
-				'label' => __( 'Double Optin Template ID', 'sendinblue-elementor-integration' ),
+				'label' => __( 'Double Opt-in Template ID', 'sendinblue-elementor-integration' ),
 				'type' => \Elementor\Controls_Manager::NUMBER,
 				'placeholder' => '5',
 				'separator' => 'before',
-				'description' => __( 'Enter your double optin template ID', 'sendinblue-elementor-integration' ),
+				'description' => __( 'Enter your double opt-in template ID - <a href="https://help.sendinblue.com/hc/en-us/articles/360019540880-Create-a-double-opt-in-DOI-confirmation-template-for-Sendinblue-form" target="_blank">More info here</a>', 'sendinblue-elementor-integration' ),
     			'condition' => array(
     				'sendinblue_double_optin' => 'yes',
     			),
@@ -88,12 +88,12 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		$widget->add_control(
 			'sendinblue_double_optin_redirect_url',
 			[
-				'label' => __( 'Double Optin Redirect URL', 'sendinblue-elementor-integration' ),
+				'label' => __( 'Double Opt-in Redirect URL', 'sendinblue-elementor-integration' ),
 				'type' => \Elementor\Controls_Manager::TEXT,
 				'placeholder' => 'https://website.com/thank-you',
 				'label_block' => true,
 				'separator' => 'before',
-				'description' => __( 'Enter the url you want to redirect to after the subscriber confirms double optin', 'sendinblue-elementor-integration' ),
+				'description' => __( 'Enter the url you want to redirect to after the subscriber confirms double opt-in', 'sendinblue-elementor-integration' ),
     			'condition' => array(
     				'sendinblue_double_optin' => 'yes',
     			),
@@ -237,10 +237,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		            'api-key' => $settings['sendinblue_api'],
 			    	'content-Type' => 'application/json',
 			    ],
-			    'body'        => json_encode(["attributes" => [ "FIRSTNAME" => $fields[$settings['sendinblue_name_field']], "LASTNAME" => $fields[$settings['sendinblue_last_name_field']] ],"includeListIds" => [(int)$settings['sendinblue_list']],"templateId" => (int)$settings['sendinblue_double_optin_template'], "redirectionUrl" => $settings['sendinblue_double_optin_redirect_url'], "email" => $fields[$settings['sendinblue_email_field']]])
+			    'body'        => json_encode(["attributes" => [ "FIRSTNAME" => $fields[$settings['sendinblue_name_field']], "LASTNAME" => $fields[$settings['sendinblue_last_name_field']] ], "includeListIds" => [(int)$settings['sendinblue_list']], "templateId" => (int)$settings['sendinblue_double_optin_template'], "redirectionUrl" => $settings['sendinblue_double_optin_redirect_url'], "email" => $fields[$settings['sendinblue_email_field']]])
 				)
 			);
-			error_log(json_encode($dpubleoptin));
 		}
 		else {
 			//Send data to Sendinblue
@@ -254,7 +253,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 	            	'api-key' => $settings['sendinblue_api'],
 		    		'content-Type' => 'application/json',
 		    	],
-		    	'body'        => json_encode(["attributes" => [ "FIRSTNAME" => $fields[$settings['sendinblue_name_field']], "LASTNAME" => $fields[$settings['sendinblue_last_name_field']] ],"updateEnabled" => true,"listIds" => [(int)$settings['sendinblue_list']],"email" => $fields[$settings['sendinblue_email_field']]])
+		    	'body'        => json_encode(["attributes" => [ "FIRSTNAME" => $fields[$settings['sendinblue_name_field']], "LASTNAME" => $fields[$settings['sendinblue_last_name_field']] ], "updateEnabled" => true, "listIds" => [(int)$settings['sendinblue_list']], "email" => $fields[$settings['sendinblue_email_field']]])
 				)
 			);	
 		}
