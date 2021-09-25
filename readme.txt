@@ -1,5 +1,5 @@
 === Sendinblue Elementor integration ===
-Contributors: Webtica
+Contributors: webtica
 Tags: sendinblue, elementor, elementor pro, forms, integration, marketing, lists, send, blue, automation
 Requires at least: 5.0
 Tested up to: 5.8.1
