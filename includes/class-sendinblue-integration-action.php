@@ -72,6 +72,35 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		);
 
 		$widget->add_control(
+			'sendinblue_double_optin_template',
+			[
+				'label' => __( 'Double Optin Template ID', 'sendinblue-elementor-integration' ),
+				'type' => \Elementor\Controls_Manager::NUMBER,
+				'placeholder' => '5',
+				'separator' => 'before',
+				'description' => __( 'Enter your double optin template ID', 'sendinblue-elementor-integration' ),
+    			'condition' => array(
+    				'sendinblue_double_optin' => 'yes',
+    			),
+			]
+		);
+
+		$widget->add_control(
+			'sendinblue_double_optin_redirect_url',
+			[
+				'label' => __( 'Double Optin Redirect URL', 'sendinblue-elementor-integration' ),
+				'type' => \Elementor\Controls_Manager::TEXT,
+				'placeholder' => 'https://website.com/thank-you',
+				'label_block' => true,
+				'separator' => 'before',
+				'description' => __( 'Enter the url you want to redirect to after the subscriber confirms double optin', 'sendinblue-elementor-integration' ),
+    			'condition' => array(
+    				'sendinblue_double_optin' => 'yes',
+    			),
+			]
+		);
+
+		$widget->add_control(
 			'sendinblue_list',
 			[
 				'label' => __( 'Sendinblue List ID', 'sendinblue-elementor-integration' ),
@@ -129,6 +158,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 	public function on_export( $element ) {
 		unset(
 			$element['sendinblue_api'],
+			$element['sendinblue_double_optin'],
+			$element['sendinblue_double_optin_template'],
+			$element['sendinblue_double_optin_redirect_url'],
 			$element['sendinblue_list'],
 			$element['sendinblue_email_field'],
 			$element['sendinblue_name_field'],
@@ -160,6 +192,17 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			return;
 		}
 
+		if ($doubleoptin == "yes") {
+			//  Make sure that there is a Sendinblue double optin ID if switch is set
+			if ( empty( $settings['sendinblue_double_optin_template'] ) ) {
+				return;
+			}
+			//  Make sure that there is a Sendinblue double optin redirect URL if switch is set
+			if ( empty( $settings['sendinblue_double_optin_redirect_url'] ) ) {
+				return;
+			}
+		}
+
 		// Make sure that there is a Sendinblue Email field ID
 		if ( empty( $settings['sendinblue_email_field'] ) ) {
 			return;
@@ -179,21 +222,41 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			return;
 		}
 
-		// Send data to Sendinblue
-		wp_remote_post( 'https://api.sendinblue.com/v3/contacts', array(
-			'method'      => 'POST',
-		    'timeout'     => 45,
-		    'httpversion' => '1.0',
-		    'blocking'    => false,
-		    'headers'     => [
-	            'accept' => 'application/json',
-	            'api-key' => $settings['sendinblue_api'],
-		    	'content-Type' => 'application/json',
-		    ],
-		    'body'        => json_encode(["attributes" => [ "FIRSTNAME" => $fields[$settings['sendinblue_name_field']], "LASTNAME" => $fields[$settings['sendinblue_last_name_field']] ],"updateEnabled" => true,"listIds" => [(int)$settings['sendinblue_list']],"email" => $fields[$settings['sendinblue_email_field']]])
-			)
-		);
+		$doubleoptin = $settings['sendinblue_double_optin'];
 
+
+		if ($doubleoptin == "yes") {
+			//Send data to Sendinblue Double optin
+			$dpubleoptin = wp_remote_post( 'https://api.sendinblue.com/v3/contacts/doubleOptinConfirmation', array(
+				'method'      => 'POST',
+			    'timeout'     => 45,
+			    'httpversion' => '1.0',
+			    'blocking'    => false,
+			    'headers'     => [
+		            'accept' => 'application/json',
+		            'api-key' => $settings['sendinblue_api'],
+			    	'content-Type' => 'application/json',
+			    ],
+			    'body'        => json_encode(["attributes" => [ "FIRSTNAME" => $fields[$settings['sendinblue_name_field']], "LASTNAME" => $fields[$settings['sendinblue_last_name_field']] ],"includeListIds" => [(int)$settings['sendinblue_list']],"templateId" => (int)$settings['sendinblue_double_optin_template'], "redirectionUrl" => $settings['sendinblue_double_optin_redirect_url'], "email" => $fields[$settings['sendinblue_email_field']]])
+				)
+			);
+			error_log(json_encode($dpubleoptin));
+		}
+		else {
+			//Send data to Sendinblue
+			wp_remote_post( 'https://api.sendinblue.com/v3/contacts', array(
+				'method'      => 'POST',
+		    	'timeout'     => 45,
+		    	'httpversion' => '1.0',
+		    	'blocking'    => false,
+		    	'headers'     => [
+	            	'accept' => 'application/json',
+	            	'api-key' => $settings['sendinblue_api'],
+		    		'content-Type' => 'application/json',
+		    	],
+		    	'body'        => json_encode(["attributes" => [ "FIRSTNAME" => $fields[$settings['sendinblue_name_field']], "LASTNAME" => $fields[$settings['sendinblue_last_name_field']] ],"updateEnabled" => true,"listIds" => [(int)$settings['sendinblue_list']],"email" => $fields[$settings['sendinblue_email_field']]])
+				)
+			);	
+		}
 	}
-
 }
