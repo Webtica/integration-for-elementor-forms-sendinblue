@@ -10,7 +10,7 @@ A lightweight but feature packed Sendinblue integration for Elementor forms.
 * WordPress 4.7 or greater
 * PHP version 5.4 or greater
 * MySQL version 5.0 or greater
-* [Elementor Pro](https://elementor.com) 2.5 or greater
+* [Elementor Pro](https://elementor.com) 3 or greater
 
 ### We recommend your host supports:
 
