@@ -1,4 +1,4 @@
-# Sendinblue Elementor integration
+# Integration for Elementor forms - Sendinblue
 
 A lightweight but feature packed Sendinblue integration for Elementor forms.
 
