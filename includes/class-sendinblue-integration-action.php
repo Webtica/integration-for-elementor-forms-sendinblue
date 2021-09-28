@@ -59,6 +59,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				'label_block' => true,
 				'separator' => 'before',
 				'description' => __( 'Enter your V3 API key from Sendinblue', 'sendinblue-elementor-integration' ),
+				'dynamic' => [
+					'active' => true,
+				],
 			]
 		);
 
