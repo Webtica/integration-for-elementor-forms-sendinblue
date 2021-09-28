@@ -97,6 +97,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
     			'condition' => array(
     				'sendinblue_double_optin' => 'yes',
     			),
+				'dynamic' => [
+					'active' => true,
+				],
 			]
 		);
 
