@@ -111,6 +111,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				'placeholder' => '5',
 				'separator' => 'before',
 				'description' => __( 'Enter your list number', 'sendinblue-elementor-integration' ),
+				'dynamic' => [
+					'active' => true,
+				],
 			]
 		);
 
