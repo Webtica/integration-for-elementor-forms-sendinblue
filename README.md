@@ -1,7 +1,9 @@
 # Integration for Elementor forms - Sendinblue
 
 A lightweight but feature packed Sendinblue integration for Elementor forms.
-
+With this integration you can send your form data and contacts to Sendinblue as easily as the standard integrations. 
+Keeping performance in mind this integration doesn't add any additional scripts on page load. 
+Feel free to post any feature requests and possible issues.
 
 ## Installation
 
@@ -40,6 +42,11 @@ Because this integration works with the Form Widget, which is a Elementor Pro un
 Yes, all the other form widget integrations will be available.
 
 ## Changelog
+
+### 1.1.0 - 05-10-2021
+* Added dynamic tags to the API key field
+* Added dynamic tags to the redirect url field
+* Added dynamic tags to the list ID field
 
 ### 1.0.0 - 25-09-2021
 * Initial Release

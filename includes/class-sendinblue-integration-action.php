@@ -59,6 +59,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				'label_block' => true,
 				'separator' => 'before',
 				'description' => __( 'Enter your V3 API key from Sendinblue', 'sendinblue-elementor-integration' ),
+				'dynamic' => [
+					'active' => true,
+				],
 			]
 		);
 
@@ -97,6 +100,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
     			'condition' => array(
     				'sendinblue_double_optin' => 'yes',
     			),
+				'dynamic' => [
+					'active' => true,
+				],
 			]
 		);
 
@@ -108,6 +114,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				'placeholder' => '5',
 				'separator' => 'before',
 				'description' => __( 'Enter your list number', 'sendinblue-elementor-integration' ),
+				'dynamic' => [
+					'active' => true,
+				],
 			]
 		);
 
