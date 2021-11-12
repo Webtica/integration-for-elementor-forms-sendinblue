@@ -85,6 +85,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
     			'condition' => array(
     				'sendinblue_double_optin' => 'yes',
     			),
+				'dynamic' => [
+					'active' => true,
+				],
 			]
 		);
 
@@ -128,6 +131,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				'placeholder' => 'email',
 				'separator' => 'before',
 				'description' => __( 'Enter the email field id - you can find this under the email field advanced tab', 'sendinblue-elementor-integration' ),
+				'dynamic' => [
+					'active' => true,
+				],
 			]
 		);
 
@@ -139,6 +145,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				'placeholder' => 'name',
 				'separator' => 'before',
 				'description' => __( 'Enter the name field id - you can find this under the name field advanced tab', 'sendinblue-elementor-integration' ),
+				'dynamic' => [
+					'active' => true,
+				],
 			]
 		);
 
@@ -150,6 +159,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				'placeholder' => 'lastname',
 				'separator' => 'before',
 				'description' => __( 'Enter the lastname field id - you can find this under the lastname field advanced tab', 'sendinblue-elementor-integration' ),
+				'dynamic' => [
+					'active' => true,
+				],
 			]
 		);
 
