@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name: Sendinblue Elementor integration
+ * Plugin Name: Integration for Elementor forms - Sendinblue
  * Description: Easily connect and send data to sendinblue from elementor forms.
  * Author: Webtica
  * Author URI: https://webtica.be/
