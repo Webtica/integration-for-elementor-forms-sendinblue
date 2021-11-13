@@ -125,7 +125,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				'type' => \Elementor\Controls_Manager::TEXT,
 				'placeholder' => 'acceptancefieldid',
 				'separator' => 'before',
-				'description' => __( 'Enter the acceptance checkbox field id - you can find this under the acceptance field advanced tab - if the checkbox is not checked then the email and extra information will not be added to the list', 'sendinblue-elementor-integration' ),
+				'description' => __( 'Enter the acceptance checkbox field id - you can find this under the acceptance field advanced tab - if the acceptance checkbox is not checked then the email and extra information will not be added to the list', 'sendinblue-elementor-integration' ),
     			'condition' => array(
     				'sendinblue_gdpr_checkbox' => 'yes',
     			),
