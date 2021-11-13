@@ -254,17 +254,6 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			}
 		}
 
-		//GDPR Checkbox
-		$gdprcheckbox = $settings['sendinblue_gdpr_checkbox'];
-		if ($gdprcheckbox == "yes") {
-			//  Make sure that there is a acceptence field if switch is set
-			if ( empty( $settings['sendinblue_gdpr_checkbox_field'] ) ) {
-				return;
-			}
-
-		}
-		error_log($fields[$settings['sendinblue_gdpr_checkbox_field']]);
-
 		// Make sure that there is a Sendinblue Email field ID
 		if ( empty( $settings['sendinblue_email_field'] ) ) {
 			return;
@@ -284,6 +273,19 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			return;
 		}
 
+		//GDPR Checkbox
+		$gdprcheckbox = $settings['sendinblue_gdpr_checkbox'];
+		if ($gdprcheckbox == "yes") {
+			//  Make sure that there is a acceptence field if switch is set
+			if ( empty( $settings['sendinblue_gdpr_checkbox_field'] ) ) {
+				return;
+			}
+			// Make sure that checkbox is on
+			$gdprcheckboxchecked = $fields[$settings['sendinblue_gdpr_checkbox_field']];
+			if ($gdprcheckboxchecked != "on") {
+				return;
+			}
+		}
 
 		if ($doubleoptin == "yes") {
 			//Send data to Sendinblue Double optin
