@@ -85,6 +85,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
     			'condition' => array(
     				'sendinblue_double_optin' => 'yes',
     			),
+				'dynamic' => [
+					'active' => true,
+				],
 			]
 		);
 
@@ -99,6 +102,32 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				'description' => __( 'Enter the url you want to redirect to after the subscriber confirms double opt-in', 'sendinblue-elementor-integration' ),
     			'condition' => array(
     				'sendinblue_double_optin' => 'yes',
+    			),
+				'dynamic' => [
+					'active' => true,
+				],
+			]
+		);
+
+		$widget->add_control(
+			'sendinblue_gdpr_checkbox',
+			[
+				'label' => __( 'GDPR Checkbox', 'sendinblue-elementor-integration' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'separator' => 'before'
+			]
+		);
+
+		$widget->add_control(
+			'sendinblue_gdpr_checkbox_field',
+			[
+				'label' => __( 'Acceptance Field ID', 'sendinblue-elementor-integration' ),
+				'type' => \Elementor\Controls_Manager::TEXT,
+				'placeholder' => 'acceptancefieldid',
+				'separator' => 'before',
+				'description' => __( 'Enter the acceptance checkbox field id - you can find this under the acceptance field advanced tab - if the checkbox is not checked then the email and extra information will not be added to the list', 'sendinblue-elementor-integration' ),
+    			'condition' => array(
+    				'sendinblue_gdpr_checkbox' => 'yes',
     			),
 				'dynamic' => [
 					'active' => true,
@@ -128,6 +157,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				'placeholder' => 'email',
 				'separator' => 'before',
 				'description' => __( 'Enter the email field id - you can find this under the email field advanced tab', 'sendinblue-elementor-integration' ),
+				'dynamic' => [
+					'active' => true,
+				],
 			]
 		);
 
@@ -139,6 +171,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				'placeholder' => 'name',
 				'separator' => 'before',
 				'description' => __( 'Enter the name field id - you can find this under the name field advanced tab', 'sendinblue-elementor-integration' ),
+				'dynamic' => [
+					'active' => true,
+				],
 			]
 		);
 
@@ -150,6 +185,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				'placeholder' => 'lastname',
 				'separator' => 'before',
 				'description' => __( 'Enter the lastname field id - you can find this under the lastname field advanced tab', 'sendinblue-elementor-integration' ),
+				'dynamic' => [
+					'active' => true,
+				],
 			]
 		);
 
@@ -170,6 +208,8 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			$element['sendinblue_double_optin'],
 			$element['sendinblue_double_optin_template'],
 			$element['sendinblue_double_optin_redirect_url'],
+			$element['sendinblue_gdpr_checkbox'],
+			$element['sendinblue_gdpr_checkbox_field'],
 			$element['sendinblue_list'],
 			$element['sendinblue_email_field'],
 			$element['sendinblue_name_field'],
@@ -201,6 +241,8 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			return;
 		}
 
+		//Doubleoptin
+		$doubleoptin = $settings['sendinblue_double_optin'];
 		if ($doubleoptin == "yes") {
 			//  Make sure that there is a Sendinblue double optin ID if switch is set
 			if ( empty( $settings['sendinblue_double_optin_template'] ) ) {
@@ -231,8 +273,19 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			return;
 		}
 
-		$doubleoptin = $settings['sendinblue_double_optin'];
-
+		//GDPR Checkbox
+		$gdprcheckbox = $settings['sendinblue_gdpr_checkbox'];
+		if ($gdprcheckbox == "yes") {
+			//  Make sure that there is a acceptence field if switch is set
+			if ( empty( $settings['sendinblue_gdpr_checkbox_field'] ) ) {
+				return;
+			}
+			// Make sure that checkbox is on
+			$gdprcheckboxchecked = $fields[$settings['sendinblue_gdpr_checkbox_field']];
+			if ($gdprcheckboxchecked != "on") {
+				return;
+			}
+		}
 
 		if ($doubleoptin == "yes") {
 			//Send data to Sendinblue Double optin

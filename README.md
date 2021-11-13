@@ -43,6 +43,16 @@ Yes, all the other form widget integrations will be available.
 
 ## Changelog
 
+### 1.2.0 - 13-11-2021
+* Added GDPR checkbox functionality
+* Added dynamic tags to the double optin field
+* Added dynamic tags to the email field
+* Added dynamic tags to the name field
+* Added dynamic tags to the lastname field
+* Tested Elementor PRO up to 3.5.1
+* Tested Elementor up to 3.4.7
+* Tested WordPress up to 5.8.2
+
 ### 1.1.0 - 05-10-2021
 * Added dynamic tags to the API key field
 * Added dynamic tags to the redirect url field
