@@ -51,8 +51,8 @@ Yes, all the other form widget integrations will be available.
 
 == Changelog ==
 
-= 1.2.0 - 2021-11-12 =
-
+= 1.2.0 - 2021-11-13 =
+* Added GDPR checkbox functionality
 * Added dynamic tags to the double optin field
 * Added dynamic tags to the email field
 * Added dynamic tags to the name field
