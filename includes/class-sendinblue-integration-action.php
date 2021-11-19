@@ -164,13 +164,40 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		);
 
 		$widget->add_control(
+			'sendinblue_name_attribute_field',
+			[
+				'label' => __( 'Name Field attribute (Optional)', 'sendinblue-elementor-integration' ),
+				'type' => \Elementor\Controls_Manager::TEXT,
+				'placeholder' => 'FIRSTNAME',
+				'separator' => 'before',
+				'description' => __( 'Enter the firstname attribute name - you can find this under contact attributes settings in Sendinblue - If this field is not set it wil default to FIRSTNAME', 'sendinblue-elementor-integration' ),
+				'dynamic' => [
+					'active' => true,
+				],
+			]
+		);
+
+		$widget->add_control(
 			'sendinblue_name_field',
 			[
 				'label' => __( 'Name Field ID (Optional)', 'sendinblue-elementor-integration' ),
 				'type' => \Elementor\Controls_Manager::TEXT,
 				'placeholder' => 'name',
-				'separator' => 'before',
 				'description' => __( 'Enter the name field id - you can find this under the name field advanced tab', 'sendinblue-elementor-integration' ),
+				'dynamic' => [
+					'active' => true,
+				],
+			]
+		);
+
+		$widget->add_control(
+			'sendinblue_last_name_attribute_field',
+			[
+				'label' => __( 'Lastname Field attribute (Optional)', 'sendinblue-elementor-integration' ),
+				'type' => \Elementor\Controls_Manager::TEXT,
+				'placeholder' => 'LASTNAME',
+				'separator' => 'before',
+				'description' => __( 'Enter the lastname attribute name - you can find this under contact attributes settings in Sendinblue - If this field is not set it wil default to LASTNAME', 'sendinblue-elementor-integration' ),
 				'dynamic' => [
 					'active' => true,
 				],
@@ -183,7 +210,6 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				'label' => __( 'Lastname Field ID (Optional)', 'sendinblue-elementor-integration' ),
 				'type' => \Elementor\Controls_Manager::TEXT,
 				'placeholder' => 'lastname',
-				'separator' => 'before',
 				'description' => __( 'Enter the lastname field id - you can find this under the lastname field advanced tab', 'sendinblue-elementor-integration' ),
 				'dynamic' => [
 					'active' => true,
@@ -212,7 +238,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			$element['sendinblue_gdpr_checkbox_field'],
 			$element['sendinblue_list'],
 			$element['sendinblue_email_field'],
+			$element['sendinblue_name_attribute_field'],
 			$element['sendinblue_name_field'],
+			$element['sendinblue_last_name_attribute_field'],
 			$element['sendinblue_last_name_field']
 		);
 
@@ -287,6 +315,22 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			}
 		}
 
+		// Sendinblue attribute names - Firstname
+		if (empty($settings['sendinblue_name_attribute_field'])) {
+			$sendinblueattributename = "FIRSTNAME";
+		}
+		else {
+			$sendinblueattributename = $settings['sendinblue_name_attribute_field'];
+		}
+
+		// Sendinblue attribute names - Lastname
+		if (empty($settings['sendinblue_last_name_attribute_field'])) {
+			$sendinblueattributelastname = "LASTNAME";
+		}
+		else {
+			$sendinblueattributelastname = $settings['sendinblue_last_name_attribute_field'];
+		}
+
 		if ($doubleoptin == "yes") {
 			//Send data to Sendinblue Double optin
 			$dpubleoptin = wp_remote_post( 'https://api.sendinblue.com/v3/contacts/doubleOptinConfirmation', array(
@@ -299,7 +343,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		            'api-key' => $settings['sendinblue_api'],
 			    	'content-Type' => 'application/json',
 			    ],
-			    'body'        => json_encode(["attributes" => [ "FIRSTNAME" => $fields[$settings['sendinblue_name_field']], "LASTNAME" => $fields[$settings['sendinblue_last_name_field']] ], "includeListIds" => [(int)$settings['sendinblue_list']], "templateId" => (int)$settings['sendinblue_double_optin_template'], "redirectionUrl" => $settings['sendinblue_double_optin_redirect_url'], "email" => $fields[$settings['sendinblue_email_field']]])
+			    'body'        => json_encode(["attributes" => [ $sendinblueattributename => $fields[$settings['sendinblue_name_field']], $sendinblueattributelastname => $fields[$settings['sendinblue_last_name_field']] ], "includeListIds" => [(int)$settings['sendinblue_list']], "templateId" => (int)$settings['sendinblue_double_optin_template'], "redirectionUrl" => $settings['sendinblue_double_optin_redirect_url'], "email" => $fields[$settings['sendinblue_email_field']]])
 				)
 			);
 		}
@@ -315,7 +359,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 	            	'api-key' => $settings['sendinblue_api'],
 		    		'content-Type' => 'application/json',
 		    	],
-		    	'body'        => json_encode(["attributes" => [ "FIRSTNAME" => $fields[$settings['sendinblue_name_field']], "LASTNAME" => $fields[$settings['sendinblue_last_name_field']] ], "updateEnabled" => true, "listIds" => [(int)$settings['sendinblue_list']], "email" => $fields[$settings['sendinblue_email_field']]])
+		    	'body'        => json_encode(["attributes" => [ $sendinblueattributename => $fields[$settings['sendinblue_name_field']], $sendinblueattributelastname => $fields[$settings['sendinblue_last_name_field']] ], "updateEnabled" => true, "listIds" => [(int)$settings['sendinblue_list']], "email" => $fields[$settings['sendinblue_email_field']]])
 				)
 			);	
 		}

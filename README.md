@@ -43,6 +43,11 @@ Yes, all the other form widget integrations will be available.
 
 ## Changelog
 
+### 1.3.0 - 19-11-2021
+* Added Firstname attribute mapping
+* Added Lastname attribute mapping
+* Tested Elementor up to 3.4.8
+
 ### 1.2.0 - 13-11-2021
 * Added GDPR checkbox functionality
 * Added dynamic tags to the double optin field
