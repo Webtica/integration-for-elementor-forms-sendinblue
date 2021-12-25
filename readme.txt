@@ -4,7 +4,7 @@ Tags: sendinblue, elementor, elementor pro, forms, integration, marketing, lists
 Requires at least: 5.0
 Tested up to: 5.8.2
 Requires PHP: 5.4
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -26,7 +26,7 @@ Feel free to post any feature requests and possible issues.
 
 = We recommend your host supports: =
 
-* PHP version 7.0 or greater
+* PHP version 7.4 or greater
 * MySQL version 5.6 or greater
 * WordPress Memory limit of 64 MB or greater (128 MB or higher is preferred)
 
@@ -50,6 +50,14 @@ Because this integration works with the Form Widget, which is a Elementor Pro un
 Yes, all the other form widget integrations will be available.
 
 == Changelog ==
+
+= 1.3.1 - 2021-12-25 =
+* Tested PHP up to 8.0
+* Add link to the support page
+* Add link to the Pro version
+* Tested Elementor up to 3.5.2
+* Tested Elementor PRO up to 3.5.2
+* Update recommended PHP version to 7.4
 
 = 1.3.0 - 2021-11-19 =
 * Added Firstname attribute mapping

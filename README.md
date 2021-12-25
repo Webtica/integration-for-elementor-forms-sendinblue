@@ -16,7 +16,7 @@ Feel free to post any feature requests and possible issues.
 
 ### We recommend your host supports:
 
-* PHP version 7.0 or greater
+* PHP version 7.4 or greater
 * MySQL version 5.6 or greater
 * WordPress Memory limit of 64 MB or greater (128 MB or higher is preferred)
 
@@ -42,6 +42,14 @@ Because this integration works with the Form Widget, which is a Elementor Pro un
 Yes, all the other form widget integrations will be available.
 
 ## Changelog
+
+### 1.3.1 - 25-12-2021
+* Tested PHP up to 8.0
+* Add link to the support page
+* Add link to the Pro version
+* Tested Elementor up to 3.5.2
+* Tested Elementor PRO up to 3.5.2
+* Update recommended PHP version to 7.4
 
 ### 1.3.0 - 19-11-2021
 * Added Firstname attribute mapping

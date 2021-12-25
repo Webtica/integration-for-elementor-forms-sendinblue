@@ -217,6 +217,22 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			]
 		);
 
+		$widget->add_control(
+			'pro_version_note',
+			[
+				'type' => \Elementor\Controls_Manager::RAW_HTML,
+				'raw' => __('Need more attributes? <a href="https://plugins.webtica.be/product/sendinblue-pro-integration-for-elementor-forms/?ref=plugin-widget" target="_blank">Check out our Pro version.</a>', 'sendinblue-elementor-integration'),
+			]
+		);
+
+		$widget->add_control(
+			'need_help_note',
+			[
+				'type' => \Elementor\Controls_Manager::RAW_HTML,
+				'raw' => __('Need help? <a href="https://plugins.webtica.be/support/?ref=plugin-widget" target="_blank">Check out our support page.</a>', 'sendinblue-elementor-integration'),
+			]
+		);
+
 		$widget->end_controls_section();
 
 	}
