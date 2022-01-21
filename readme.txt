@@ -4,7 +4,7 @@ Tags: sendinblue, elementor, elementor pro, forms, integration, marketing, lists
 Requires at least: 5.0
 Tested up to: 5.8.2
 Requires PHP: 5.4
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -50,6 +50,10 @@ Because this integration works with the Form Widget, which is a Elementor Pro un
 Yes, all the other form widget integrations will be available.
 
 == Changelog ==
+
+= 1.3.2 - 2022-01-21 =
+* Fix possible fatal error on plugin activation
+* Tested Elementor up to 3.5.3
 
 = 1.3.1 - 2021-12-25 =
 * Tested PHP up to 8.0
