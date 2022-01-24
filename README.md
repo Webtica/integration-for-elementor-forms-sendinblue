@@ -43,6 +43,10 @@ Yes, all the other form widget integrations will be available.
 
 ## Changelog
 
+### 1.3.3 - 24-01-2022
+* Tested Elementor up to 3.5.4
+* Tested Wordpress up to 5.9
+
 ### 1.3.2 - 21-01-2022
 * Fix possible fatal error on plugin activation
 * Tested Elementor up to 3.5.3
