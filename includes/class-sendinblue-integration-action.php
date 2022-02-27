@@ -51,6 +51,26 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		);
 
 		$widget->add_control(
+			'sendinblue_use_global_api_key',
+			[
+				'label' => __( 'Global Sendinblue API key', 'sendinblue-elementor-integration' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'separator' => 'before'
+			]
+		);
+
+		$widget->add_control(
+			'sendinblue_use_global_api_key_note',
+			[
+				'type' => \Elementor\Controls_Manager::RAW_HTML,
+				'raw' => __('You can set your global API key <a href="' . admin_url( 'options-general.php?page=webtica-sendinblue-free' ) . '" target="_blank">here.</a> this means you only need to set your Sendinblue API key once.', 'sendinblue-elementor-integration'),
+				'condition' => array(
+					'sendinblue_use_global_api_key' => 'yes',
+    			),
+			]
+		);
+
+		$widget->add_control(
 			'sendinblue_api',
 			[
 				'label' => __( 'Sendinblue API key', 'sendinblue-elementor-integration' ),
@@ -59,6 +79,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				'label_block' => true,
 				'separator' => 'before',
 				'description' => __( 'Enter your V3 API key from Sendinblue', 'sendinblue-elementor-integration' ),
+				'condition' => array(
+					'sendinblue_use_global_api_key!' => 'yes',
+    			),
 				'dynamic' => [
 					'active' => true,
 				],
@@ -246,6 +269,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 	 */
 	public function on_export( $element ) {
 		unset(
+			$element['sendinblue_use_global_api_key'],
 			$element['sendinblue_api'],
 			$element['sendinblue_double_optin'],
 			$element['sendinblue_double_optin_template'],
@@ -275,13 +299,30 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 	public function run( $record, $ajax_handler ) {
 		$settings = $record->get( 'form_settings' );
 
-		//  Make sure that there is an Sendinblue API key set
-		if ( empty( $settings['sendinblue_api'] ) ) {
-			return;
+		//Global key
+		$useglobalkey = $settings['sendinblue_use_global_api_key'];
+		if ($useglobalkey == "yes") {
+			$webtica_sendinblue_options = get_option( 'webtica_sendinblue_option_name' );
+			$globalapikey = $webtica_sendinblue_options['global_api_key_webtica_sendinblue'];
+			if ( empty( $globalapikey ) ) {
+				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue Global API Key not set.'); }
+				return;
+			}
+			else {
+				$settings['sendinblue_api'] = $globalapikey;
+			}
+		}
+		else {
+			//  Make sure that there is an Sendinblue API key set
+			if ( empty( $settings['sendinblue_api'] ) ) {
+				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue API Key not set.'); }
+				return;
+			}
 		}
 
 		//  Make sure that there is a Sendinblue list ID
 		if ( empty( $settings['sendinblue_list'] ) ) {
+			if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue list ID not set.'); }
 			return;
 		}
 
@@ -290,16 +331,19 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		if ($doubleoptin == "yes") {
 			//  Make sure that there is a Sendinblue double optin ID if switch is set
 			if ( empty( $settings['sendinblue_double_optin_template'] ) ) {
+				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue double optin template ID not set.'); }
 				return;
 			}
 			//  Make sure that there is a Sendinblue double optin redirect URL if switch is set
 			if ( empty( $settings['sendinblue_double_optin_redirect_url'] ) ) {
+				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue double optin redirect URL not set.'); }
 				return;
 			}
 		}
 
 		// Make sure that there is a Sendinblue Email field ID
 		if ( empty( $settings['sendinblue_email_field'] ) ) {
+			if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue e-mail field ID not set.'); }
 			return;
 		}
 
@@ -312,8 +356,25 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			$fields[ $id ] = $field['value'];
 		}
 
+		//Check if email field contains the elementor form attribute shortcodes
+		if (strpos($settings['sendinblue_email_field'], '[field id=') !== false) {
+			$settings['sendinblue_email_field'] = substr($settings['sendinblue_email_field'], strpos($settings['sendinblue_email_field'], '"') + 1);
+			$settings['sendinblue_email_field'] = trim($settings['sendinblue_email_field'], '"]');
+		}
+		//Check if first name field contains the elementor form attribute shortcodes
+		if (strpos($settings['sendinblue_name_field'], '[field id=') !== false) {
+			$settings['sendinblue_name_field'] = substr($settings['sendinblue_name_field'], strpos($settings['sendinblue_name_field'], '"') + 1);
+			$settings['sendinblue_name_field'] = trim($settings['sendinblue_name_field'], '"]');
+		}
+		//Check if last name field contains the elementor form attribute shortcodes
+		if (strpos($settings['sendinblue_last_name_field'], '[field id=') !== false) {
+			$settings['sendinblue_last_name_field'] = substr($settings['sendinblue_last_name_field'], strpos($settings['sendinblue_last_name_field'], '"') + 1);
+			$settings['sendinblue_last_name_field'] = trim($settings['sendinblue_last_name_field'], '"]');
+		}
+
 		// Make sure that the user has an email
 		if ( empty( $fields[ $settings['sendinblue_email_field'] ] ) ) {
+			if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Client did not enter an e-mail.'); }
 			return;
 		}
 
@@ -322,11 +383,13 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		if ($gdprcheckbox == "yes") {
 			//  Make sure that there is a acceptence field if switch is set
 			if ( empty( $settings['sendinblue_gdpr_checkbox_field'] ) ) {
+				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Acceptence field ID is not set.'); }
 				return;
 			}
 			// Make sure that checkbox is on
 			$gdprcheckboxchecked = $fields[$settings['sendinblue_gdpr_checkbox_field']];
 			if ($gdprcheckboxchecked != "on") {
+				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - GDPR Checkbox was not thicked.'); }
 				return;
 			}
 		}
@@ -347,9 +410,10 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			$sendinblueattributelastname = $settings['sendinblue_last_name_attribute_field'];
 		}
 
+
 		if ($doubleoptin == "yes") {
 			//Send data to Sendinblue Double optin
-			$dpubleoptin = wp_remote_post( 'https://api.sendinblue.com/v3/contacts/doubleOptinConfirmation', array(
+			wp_remote_post( 'https://api.sendinblue.com/v3/contacts/doubleOptinConfirmation', array(
 				'method'      => 'POST',
 			    'timeout'     => 45,
 			    'httpversion' => '1.0',

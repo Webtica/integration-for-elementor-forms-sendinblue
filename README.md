@@ -43,6 +43,14 @@ Yes, all the other form widget integrations will be available.
 
 ## Changelog
 
+### 1.4.0 - 27-02-2022
+* Elementor form fields shortcodes are now compatible
+* Added debugging when WP Debug is on
+* Added basic settings page where you can enter a global sendinblue API key
+* Possibility to use global or custom API key
+* Tested Elementor up to 3.5.5
+* Tested Elementor PRO up to 3.6.2
+
 ### 1.3.3 - 24-01-2022
 * Tested Elementor up to 3.5.4
 * Tested Wordpress up to 5.9
