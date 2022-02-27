@@ -2,9 +2,9 @@
 Contributors: webtica
 Tags: sendinblue, elementor, elementor pro, forms, integration, marketing, lists, send, blue, automation
 Requires at least: 5.0
-Tested up to: 5.8.2
+Tested up to: 5.9
 Requires PHP: 5.4
-Stable tag: 1.2.0
+Stable tag: 1.4.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -26,7 +26,7 @@ Feel free to post any feature requests and possible issues.
 
 = We recommend your host supports: =
 
-* PHP version 7.0 or greater
+* PHP version 7.4 or greater
 * MySQL version 5.6 or greater
 * WordPress Memory limit of 64 MB or greater (128 MB or higher is preferred)
 
@@ -50,6 +50,35 @@ Because this integration works with the Form Widget, which is a Elementor Pro un
 Yes, all the other form widget integrations will be available.
 
 == Changelog ==
+
+= 1.4.0 - 2022-02-27 =
+* Elementor form fields shortcodes are now compatible
+* Added debugging when WP Debug is on
+* Added basic settings page where you can enter a global sendinblue API key
+* Possibility to use global or custom API key
+* Tested Elementor up to 3.5.5
+* Tested Elementor PRO up to 3.6.2
+
+= 1.3.3 - 2022-01-24 =
+* Tested Elementor up to 3.5.4
+* Tested Wordpress up to 5.9
+
+= 1.3.2 - 2022-01-21 =
+* Fix possible fatal error on plugin activation
+* Tested Elementor up to 3.5.3
+
+= 1.3.1 - 2021-12-25 =
+* Tested PHP up to 8.0
+* Add link to the support page
+* Add link to the Pro version
+* Tested Elementor up to 3.5.2
+* Tested Elementor PRO up to 3.5.2
+* Update recommended PHP version to 7.4
+
+= 1.3.0 - 2021-11-19 =
+* Added Firstname attribute mapping
+* Added Lastname attribute mapping
+* Tested Elementor up to 3.4.8
 
 = 1.2.0 - 2021-11-13 =
 * Added GDPR checkbox functionality

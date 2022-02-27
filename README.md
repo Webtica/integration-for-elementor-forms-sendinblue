@@ -16,7 +16,7 @@ Feel free to post any feature requests and possible issues.
 
 ### We recommend your host supports:
 
-* PHP version 7.0 or greater
+* PHP version 7.4 or greater
 * MySQL version 5.6 or greater
 * WordPress Memory limit of 64 MB or greater (128 MB or higher is preferred)
 
@@ -42,6 +42,35 @@ Because this integration works with the Form Widget, which is a Elementor Pro un
 Yes, all the other form widget integrations will be available.
 
 ## Changelog
+
+### 1.4.0 - 27-02-2022
+* Elementor form fields shortcodes are now compatible
+* Added debugging when WP Debug is on
+* Added basic settings page where you can enter a global sendinblue API key
+* Possibility to use global or custom API key
+* Tested Elementor up to 3.5.5
+* Tested Elementor PRO up to 3.6.2
+
+### 1.3.3 - 24-01-2022
+* Tested Elementor up to 3.5.4
+* Tested Wordpress up to 5.9
+
+### 1.3.2 - 21-01-2022
+* Fix possible fatal error on plugin activation
+* Tested Elementor up to 3.5.3
+
+### 1.3.1 - 25-12-2021
+* Tested PHP up to 8.0
+* Add link to the support page
+* Add link to the Pro version
+* Tested Elementor up to 3.5.2
+* Tested Elementor PRO up to 3.5.2
+* Update recommended PHP version to 7.4
+
+### 1.3.0 - 19-11-2021
+* Added Firstname attribute mapping
+* Added Lastname attribute mapping
+* Tested Elementor up to 3.4.8
 
 ### 1.2.0 - 13-11-2021
 * Added GDPR checkbox functionality
