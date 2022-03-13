@@ -35,8 +35,6 @@ class WebticaSendinblueFree {
 
 		<div class="wrap">
 			<h2>Integration for Elementor form - Sendinblue</h2>
-			<p>Here you can find all your Webtica Integration for Elementor Form - Sendinblue settings</p>
-			<?php settings_errors(); ?>
 
 			<form method="post" action="options.php">
 				<?php
@@ -79,6 +77,10 @@ class WebticaSendinblueFree {
 		}
 
 		return $sanitary_values;
+	}
+
+	public function webtica_sendinblue_section_info() {
+		echo "Here you can find all your Webtica Integration for Elementor Form - Sendinblue settings";
 	}
 
 	public function global_api_key_webtica_sendinblue_callback() {

@@ -43,6 +43,13 @@ Yes, all the other form widget integrations will be available.
 
 ## Changelog
 
+### 1.4.1 - 13-03-2022
+* Fix bug on settings page with callback
+* Fix bug on settings page showing double output
+* Tested WordPress up to 5.9.2
+* Tested Elementor up to 3.5.6
+* Tested Elementor PRO up to 3.6.3
+
 ### 1.4.0 - 27-02-2022
 * Elementor form fields shortcodes are now compatible
 * Added debugging when WP Debug is on
