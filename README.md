@@ -43,6 +43,10 @@ Yes, all the other form widget integrations will be available.
 
 ## Changelog
 
+### 1.4.2 - 05-04-2022
+* Tested Elementor up to 3.6.2
+* Tested Elementor PRO up to 3.6.4
+
 ### 1.4.1 - 13-03-2022
 * Fix bug on settings page with callback
 * Fix bug on settings page showing double output
