@@ -334,10 +334,12 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue double optin template ID not set.'); }
 				return;
 			}
-			//  Make sure that there is a Sendinblue double optin redirect URL if switch is set
+			//  Make sure that there is a Sendinblue double optin redirect URL else set default url
 			if ( empty( $settings['sendinblue_double_optin_redirect_url'] ) ) {
-				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue double optin redirect URL not set.'); }
-				return;
+				$doubleoptinurl = get_site_url();
+			}
+			else {
+				$doubleoptinurl = $settings['sendinblue_double_optin_redirect_url'];
 			}
 		}
 
@@ -423,7 +425,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		            'api-key' => $settings['sendinblue_api'],
 			    	'content-Type' => 'application/json',
 			    ],
-			    'body'        => json_encode(["attributes" => [ $sendinblueattributename => $fields[$settings['sendinblue_name_field']], $sendinblueattributelastname => $fields[$settings['sendinblue_last_name_field']] ], "includeListIds" => [(int)$settings['sendinblue_list']], "templateId" => (int)$settings['sendinblue_double_optin_template'], "redirectionUrl" => $settings['sendinblue_double_optin_redirect_url'], "email" => $fields[$settings['sendinblue_email_field']]])
+			    'body'        => json_encode(["attributes" => [ $sendinblueattributename => $fields[$settings['sendinblue_name_field']], $sendinblueattributelastname => $fields[$settings['sendinblue_last_name_field']] ], "includeListIds" => [(int)$settings['sendinblue_list']], "templateId" => (int)$settings['sendinblue_double_optin_template'], "redirectionUrl" => $doubleoptinurl, "email" => $fields[$settings['sendinblue_email_field']]])
 				)
 			);
 		}

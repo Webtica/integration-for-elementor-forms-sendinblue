@@ -43,6 +43,10 @@ Yes, all the other form widget integrations will be available.
 
 ## Changelog
 
+### 1.4.4 - 24-05-2022
+* Added default double optin URL when empty the home URL will be used.
+* Tested Elementor PRO up to 3.7.1
+
 ### 1.4.3 - 08-05-2022
 * Tested Elementor up to 3.6.5
 * Tested Elementor PRO up to 3.6.5
