@@ -133,6 +133,19 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		);
 
 		$widget->add_control(
+			'sendinblue_double_optin_check_if_email_exists',
+			[
+				'label' => __( 'Check if user already exists - Skip Double Opt-in', 'sendinblue-elementor-integration' ),
+				'description' => __( 'Note: This will skip the notification email. This will still update the users fields', 'sendinblue-elementor-integration' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'separator' => 'before',
+    			'condition' => array(
+    				'sendinblue_double_optin' => 'yes',
+    			),
+			]
+		);
+
+		$widget->add_control(
 			'sendinblue_gdpr_checkbox',
 			[
 				'label' => __( 'GDPR Checkbox', 'sendinblue-elementor-integration' ),
@@ -274,6 +287,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			$element['sendinblue_double_optin'],
 			$element['sendinblue_double_optin_template'],
 			$element['sendinblue_double_optin_redirect_url'],
+			$element['sendinblue_double_optin_check_if_email_exists'],
 			$element['sendinblue_gdpr_checkbox'],
 			$element['sendinblue_gdpr_checkbox_field'],
 			$element['sendinblue_list'],
@@ -412,8 +426,35 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			$sendinblueattributelastname = $settings['sendinblue_last_name_attribute_field'];
 		}
 
+		//Check if user already exists
+		$emailexistsswitch = $settings['sendinblue_double_optin_check_if_email_exists'];
+		if ($emailexistsswitch == "yes") {
+			$requesturl = 'https://api.sendinblue.com/v3/contacts/'.urlencode($fields[$settings['sendinblue_email_field']]);
+			//Send data to Sendinblue
+			$request = wp_remote_request( $requesturl, array(
+					'method'      => 'GET',
+					'timeout'     => 45,
+					'httpversion' => '1.0',
+					'blocking'    => true,
+					'headers'     => [
+						'accept' => 'application/json',
+						'api-key' => $settings['sendinblue_api'],
+						'content-Type' => 'application/json',
+					],
+					'body'        => ''
+				)
+			);
+			$response_code = wp_remote_retrieve_response_code( $request );	
+			if ($response_code == 200){
+				$emailexists = "yes";
+			} else {
+				$emailexists = "no";
+			}
+		} else {
+			$emailexists = "yes";
+		}
 
-		if ($doubleoptin == "yes") {
+		if ($doubleoptin == "yes" && $emailexists == "no") {
 			//Send data to Sendinblue Double optin
 			wp_remote_post( 'https://api.sendinblue.com/v3/contacts/doubleOptinConfirmation', array(
 				'method'      => 'POST',

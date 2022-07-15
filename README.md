@@ -43,6 +43,13 @@ Yes, all the other form widget integrations will be available.
 
 ## Changelog
 
+### 1.5.0 - 15-07-2022
+* Added a new action after submit to unsubscribe users.
+* Skip existing emails - This will skip double optin notification mail if they are already in Sendinblue.
+* Tested Elementor up to 3.6.7
+* Tested Elementor PRO up to 3.7.2
+* Tested WordPress up to 6.0.1
+
 ### 1.4.4 - 24-05-2022
 * Added default double optin URL when empty the home URL will be used.
 * Tested Elementor PRO up to 3.7.1
