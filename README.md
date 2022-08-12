@@ -43,6 +43,11 @@ Yes, all the other form widget integrations will be available.
 
 ## Changelog
 
+### 1.5.1 - 12-08-2022
+* Add default value "email" to the email field ID.
+* Tested Elementor up to 3.7.0
+* Tested Elementor PRO up to 3.7.3
+
 ### 1.5.0 - 15-07-2022
 * Added a new action after submit to unsubscribe users.
 * Skip existing emails - This will skip double optin notification mail if they are already in Sendinblue.

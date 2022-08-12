@@ -4,7 +4,7 @@ Tags: sendinblue, elementor, elementor pro, forms, integration, marketing, lists
 Requires at least: 5.0
 Tested up to: 6.0.1
 Requires PHP: 5.4
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -50,6 +50,11 @@ Because this integration works with the Form Widget, which is a Elementor Pro un
 Yes, all the other form widget integrations will be available.
 
 == Changelog ==
+
+= 1.5.1 - 2022-08-12 =
+* Add default value "email" to the email field ID.
+* Tested Elementor up to 3.7.0
+* Tested Elementor PRO up to 3.7.3
 
 = 1.5.0 - 2022-07-15 =
 * Added a new action after submit to unsubscribe users.

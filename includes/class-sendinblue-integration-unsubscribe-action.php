@@ -128,6 +128,7 @@ class Sendinblue_Integration_Unsubscribe_Action_After_Submit extends \ElementorP
 				'label' => __( 'Email Field ID', 'sendinblue-elementor-integration' ),
 				'type' => \Elementor\Controls_Manager::TEXT,
 				'placeholder' => 'email',
+				'default' => 'email',
 				'separator' => 'before',
 				'description' => __( 'Enter the email field id - you can find this under the email field advanced tab', 'sendinblue-elementor-integration' ),
 				'dynamic' => [
