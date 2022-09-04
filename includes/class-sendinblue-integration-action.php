@@ -452,7 +452,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				$emailexists = "no";
 			}
 		} else {
-			$emailexists = "yes";
+			$emailexists = "no";
 		}
 
 		if ($doubleoptin == "yes" && $emailexists == "no") {

@@ -43,6 +43,12 @@ Yes, all the other form widget integrations will be available.
 
 ## Changelog
 
+### 1.5.2 - 04-09-2022
+* Fixed issue with double optin when check for existing user was not enabled.
+* Tested Elementor up to 3.7.4
+* Tested Elementor PRO up to 3.7.5
+* Tested WordPress up to 6.0.2
+
 ### 1.5.1 - 12-08-2022
 * Add default value "email" to the email field ID.
 * Tested Elementor up to 3.7.0
