@@ -5,9 +5,9 @@
  * Description: Easily connect and send data to sendinblue from elementor forms.
  * Author: Webtica
  * Author URI: https://webtica.be/
- * Version: 1.5.2
- * Elementor tested up to: 3.7.4
- * Elementor Pro tested up to: 3.7.5
+ * Version: 1.5.3
+ * Elementor tested up to: 3.12.2
+ * Elementor Pro tested up to: 3.12.3
  */
 
 // Exit if accessed directly
