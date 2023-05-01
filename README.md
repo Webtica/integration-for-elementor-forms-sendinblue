@@ -43,10 +43,15 @@ Yes, all the other form widget integrations will be available.
 
 ## Changelog
 
-### 1.5.3 - 01-05-2023
+### 1.5.4 - 01-05-2023
 * Tested Elementor up to 3.12.2
 * Tested Elementor PRO up to 3.12.3
 * Tested WordPress up to 6.2.0
+
+### 1.5.3 - 05-11-2022
+* Tested Elementor up to 3.8.0
+* Tested Elementor PRO up to 3.8.0
+* Tested WordPress up to 6.1.0
 
 ### 1.5.2 - 04-09-2022
 * Fixed issue with double optin when check for existing user was not enabled.
