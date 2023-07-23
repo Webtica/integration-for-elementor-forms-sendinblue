@@ -430,7 +430,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		//Check if user already exists
 		$emailexistsswitch = $settings['sendinblue_double_optin_check_if_email_exists'];
 		if ($emailexistsswitch == "yes") {
-			$requesturl = 'https://api.sendinblue.com/v3/contacts/'.urlencode($fields[$settings['sendinblue_email_field']]);
+			$requesturl = 'https://api.brevo.com/v3/contacts/'.urlencode($fields[$settings['sendinblue_email_field']]);
 			//Send data to Sendinblue
 			$request = wp_remote_request( $requesturl, array(
 					'method'      => 'GET',
@@ -457,7 +457,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 
 		if ($doubleoptin == "yes" && $emailexists == "no") {
 			//Send data to Sendinblue Double optin
-			wp_remote_post( 'https://api.sendinblue.com/v3/contacts/doubleOptinConfirmation', array(
+			wp_remote_post( 'https://api.brevo.com/v3/contacts/doubleOptinConfirmation', array(
 				'method'      => 'POST',
 			    'timeout'     => 45,
 			    'httpversion' => '1.0',
@@ -473,7 +473,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		}
 		else {
 			//Send data to Sendinblue
-			wp_remote_post( 'https://api.sendinblue.com/v3/contacts', array(
+			wp_remote_post( 'https://api.brevo.com/v3/contacts', array(
 				'method'      => 'POST',
 		    	'timeout'     => 45,
 		    	'httpversion' => '1.0',

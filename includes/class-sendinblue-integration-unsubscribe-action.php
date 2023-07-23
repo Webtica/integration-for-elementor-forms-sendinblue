@@ -252,7 +252,7 @@ class Sendinblue_Integration_Unsubscribe_Action_After_Submit extends \ElementorP
 				return;
 			}
 		}
-		$requesturl = 'https://api.sendinblue.com/v3/contacts/'.urlencode($fields[$settings['sendinblue_unsubscribe_email_field']]);
+		$requesturl = 'https://api.brevo.com/v3/contacts/'.urlencode($fields[$settings['sendinblue_unsubscribe_email_field']]);
 		//Send data to Sendinblue
 		wp_remote_request( $requesturl, array(
 				'method'      => 'DELETE',

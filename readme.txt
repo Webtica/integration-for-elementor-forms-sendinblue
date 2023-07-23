@@ -1,17 +1,17 @@
 === Integration for Elementor forms - Sendinblue ===
 Contributors: webtica
-Tags: sendinblue, elementor, elementor pro, forms, integration, marketing, lists, send, blue, automation
+Tags: sendinblue, brevo, elementor, elementor pro, forms, integration, marketing, lists, send, blue, automation
 Requires at least: 5.0
-Tested up to: 6.2.0
-Requires PHP: 5.4
-Stable tag: 1.5.4
+Tested up to: 6.3.0
+Requires PHP: 7.0
+Stable tag: 1.5.5
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
 == Description ==
 
-A lightweight but feature packed Sendinblue integration for Elementor forms.
-With this integration you can send your form data and contacts to Sendinblue as easily as the standard integrations. 
+A lightweight but feature packed Sendinblue / Brevo integration for Elementor forms.
+With this integration you can send your form data and contacts to Sendinblue / Brevo as easily as the standard integrations. 
 Keeping performance in mind this integration doesn't add any additional scripts on page load. 
 Feel free to post any feature requests and possible issues.
 
@@ -20,7 +20,7 @@ Feel free to post any feature requests and possible issues.
 = Minimum Requirements =
 
 * WordPress 5.0 or greater
-* PHP version 5.4 or greater
+* PHP version 7.0 or greater
 * MySQL version 5.0 or greater
 * [Elementor Pro](https://elementor.com) 3 or greater
 
@@ -49,7 +49,18 @@ Because this integration works with the Form Widget, which is a Elementor Pro un
 
 Yes, all the other form widget integrations will be available.
 
+**Does this also work with Brevo?**
+
+Yes, Sendinblue has changed it name and branding to Brevo. The integration will still work.
+
 == Changelog ==
+
+= 1.5.5 - 2023-07-23 =
+* Changed API endpoints to new brevo endpoints
+* Change minimum PHP version to 7.0
+* Tested Elementor PRO up to 3.14.1
+* Tested Elementor up to 3.14.1
+* Tested WordPress up to 6.3.0
 
 = 1.5.4 - 2023-05-01 =
 * Tested Elementor up to 3.12.2
