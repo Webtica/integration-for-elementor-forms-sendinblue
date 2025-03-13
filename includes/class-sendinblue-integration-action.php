@@ -431,6 +431,12 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		$emailexistsswitch = $settings['sendinblue_double_optin_check_if_email_exists'];
 		if ($emailexistsswitch == "yes") {
 			$requesturl = 'https://api.brevo.com/v3/contacts/'.urlencode($fields[$settings['sendinblue_email_field']]);
+			
+			// Log the check email exists request
+			if( WP_DEBUG === true ) { 
+				error_log('Elementor forms Sendinblue integration - Check email exists URL: ' . $requesturl); 
+			}
+			
 			//Send data to Sendinblue
 			$request = wp_remote_request( $requesturl, array(
 					'method'      => 'GET',
@@ -451,41 +457,106 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			} else {
 				$emailexists = "no";
 			}
+			
+			// Log the check email exists response
+			if( WP_DEBUG === true ) { 
+				$response_body = wp_remote_retrieve_body( $request );
+				error_log('Elementor forms Sendinblue integration - Check email exists response code: ' . $response_code); 
+				error_log('Elementor forms Sendinblue integration - Check email exists response body: ' . $response_body);
+				error_log('Elementor forms Sendinblue integration - Email exists: ' . $emailexists);
+			}
 		} else {
 			$emailexists = "no";
 		}
 
 		if ($doubleoptin == "yes" && $emailexists == "no") {
+			// Prepare the attributes array
+			$attributes = [ 
+				$sendinblueattributename => $fields[$settings['sendinblue_name_field']], 
+				$sendinblueattributelastname => $fields[$settings['sendinblue_last_name_field']] 
+			];
+			
+			// Prepare request body for double optin
+			$double_optin_body = [
+				"attributes" => $attributes,
+				"includeListIds" => [(int)$settings['sendinblue_list']], 
+				"templateId" => (int)$settings['sendinblue_double_optin_template'], 
+				"redirectionUrl" => $doubleoptinurl, 
+				"email" => $fields[$settings['sendinblue_email_field']]
+			];
+			
+			// Log the double optin request body
+			if( WP_DEBUG === true ) { 
+				error_log('Elementor forms Sendinblue integration - Double optin request body: ' . wp_json_encode($double_optin_body)); 
+			}
+			
 			//Send data to Sendinblue Double optin
-			wp_remote_post( 'https://api.brevo.com/v3/contacts/doubleOptinConfirmation', array(
+			$double_optin_response = wp_remote_post( 'https://api.brevo.com/v3/contacts/doubleOptinConfirmation', array(
 				'method'      => 'POST',
 			    'timeout'     => 45,
 			    'httpversion' => '1.0',
-			    'blocking'    => false,
+			    'blocking'    => true, // Changed to true to get the response
 			    'headers'     => [
 		            'accept' => 'application/json',
 		            'api-key' => $settings['sendinblue_api'],
 			    	'content-Type' => 'application/json',
 			    ],
-			    'body'        => json_encode(["attributes" => [ $sendinblueattributename => $fields[$settings['sendinblue_name_field']], $sendinblueattributelastname => $fields[$settings['sendinblue_last_name_field']] ], "includeListIds" => [(int)$settings['sendinblue_list']], "templateId" => (int)$settings['sendinblue_double_optin_template'], "redirectionUrl" => $doubleoptinurl, "email" => $fields[$settings['sendinblue_email_field']]])
+			    'body'        => json_encode($double_optin_body)
 				)
 			);
+			
+			// Log the double optin response
+			if( WP_DEBUG === true ) { 
+				$do_response_code = wp_remote_retrieve_response_code( $double_optin_response );
+				$do_response_body = wp_remote_retrieve_body( $double_optin_response );
+				error_log('Elementor forms Sendinblue integration - Double optin response code: ' . $do_response_code); 
+				error_log('Elementor forms Sendinblue integration - Double optin response body: ' . $do_response_body);
+				error_log('Elementor forms Sendinblue integration - Double optin complete response: ' . wp_json_encode($double_optin_response)); 
+			}
 		}
 		else {
+			// Prepare the attributes array
+			$attributes = [ 
+				$sendinblueattributename => $fields[$settings['sendinblue_name_field']], 
+				$sendinblueattributelastname => $fields[$settings['sendinblue_last_name_field']] 
+			];
+			
+			// Prepare request body for regular contact addition
+			$contact_body = [
+				"attributes" => $attributes, 
+				"updateEnabled" => true, 
+				"listIds" => [(int)$settings['sendinblue_list']], 
+				"email" => $fields[$settings['sendinblue_email_field']]
+			];
+			
+			// Log the contact request body
+			if( WP_DEBUG === true ) { 
+				error_log('Elementor forms Sendinblue integration - Contact request body: ' . wp_json_encode($contact_body)); 
+			}
+			
 			//Send data to Sendinblue
-			wp_remote_post( 'https://api.brevo.com/v3/contacts', array(
+			$contact_response = wp_remote_post( 'https://api.brevo.com/v3/contacts', array(
 				'method'      => 'POST',
 		    	'timeout'     => 45,
 		    	'httpversion' => '1.0',
-		    	'blocking'    => false,
+		    	'blocking'    => true, // Changed to true to get the response
 		    	'headers'     => [
 	            	'accept' => 'application/json',
 	            	'api-key' => $settings['sendinblue_api'],
 		    		'content-Type' => 'application/json',
 		    	],
-		    	'body'        => json_encode(["attributes" => [ $sendinblueattributename => $fields[$settings['sendinblue_name_field']], $sendinblueattributelastname => $fields[$settings['sendinblue_last_name_field']] ], "updateEnabled" => true, "listIds" => [(int)$settings['sendinblue_list']], "email" => $fields[$settings['sendinblue_email_field']]])
+		    	'body'        => json_encode($contact_body)
 				)
-			);	
+			);
+			
+			// Log the contact response
+			if( WP_DEBUG === true ) { 
+				$contact_response_code = wp_remote_retrieve_response_code( $contact_response );
+				$contact_response_body = wp_remote_retrieve_body( $contact_response );
+				error_log('Elementor forms Sendinblue integration - Contact response code: ' . $contact_response_code); 
+				error_log('Elementor forms Sendinblue integration - Contact response body: ' . $contact_response_body);
+				error_log('Elementor forms Sendinblue integration - Contact complete response: ' . wp_json_encode($contact_response)); 
+			}
 		}
 	}
 }

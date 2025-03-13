@@ -252,20 +252,64 @@ class Sendinblue_Integration_Unsubscribe_Action_After_Submit extends \ElementorP
 				return;
 			}
 		}
-		$requesturl = 'https://api.brevo.com/v3/contacts/'.urlencode($fields[$settings['sendinblue_unsubscribe_email_field']]);
-		//Send data to Sendinblue
-		wp_remote_request( $requesturl, array(
-				'method'      => 'DELETE',
-		    	'timeout'     => 45,
-		    	'httpversion' => '1.0',
-		    	'blocking'    => false,
-		    	'headers'     => [
-	            	'accept' => 'application/json',
-	            	'api-key' => $settings['sendinblue_unsubscribe_api'],
-		    		'content-Type' => 'application/json',
-		    	],
-		    	'body'        => ''
-			)
-		);	
+		
+		// Get the email being unsubscribed
+		$email_to_unsubscribe = $fields[$settings['sendinblue_unsubscribe_email_field']];
+		
+		// Prepare the request URL
+		$requesturl = 'https://api.brevo.com/v3/contacts/'.urlencode($email_to_unsubscribe);
+		
+		// Log the unsubscribe request details
+		if( WP_DEBUG === true ) { 
+			error_log('Elementor forms Sendinblue integration - Beginning unsubscribe process');
+			error_log('Elementor forms Sendinblue integration - Unsubscribe request URL: ' . $requesturl); 
+			error_log('Elementor forms Sendinblue integration - Unsubscribe email: ' . $email_to_unsubscribe);
+		}
+		
+		// Prepare request parameters
+		$request_args = array(
+			'method'      => 'DELETE',
+			'timeout'     => 45,
+			'httpversion' => '1.0',
+			'blocking'    => true, // Changed to true to get the response
+			'headers'     => [
+				'accept' => 'application/json',
+				'api-key' => $settings['sendinblue_unsubscribe_api'],
+				'content-Type' => 'application/json',
+			],
+			'body'        => ''
+		);
+		
+		// Log the request parameters
+		if( WP_DEBUG === true ) { 
+			error_log('Elementor forms Sendinblue integration - Unsubscribe request parameters: ' . wp_json_encode($request_args)); 
+		}
+		
+		// Send data to Sendinblue
+		$unsubscribe_response = wp_remote_request( $requesturl, $request_args );
+		
+		// Log the response
+		if( WP_DEBUG === true ) { 
+			$response_code = wp_remote_retrieve_response_code( $unsubscribe_response );
+			$response_body = wp_remote_retrieve_body( $unsubscribe_response );
+			
+			error_log('Elementor forms Sendinblue integration - Unsubscribe response code: ' . $response_code); 
+			error_log('Elementor forms Sendinblue integration - Unsubscribe response body: ' . $response_body); 
+			
+			// Check for errors
+			if (is_wp_error($unsubscribe_response)) {
+				error_log('Elementor forms Sendinblue integration - Unsubscribe request error: ' . $unsubscribe_response->get_error_message()); 
+			}
+			
+			// Log if the request was successful
+			if ($response_code >= 200 && $response_code < 300) {
+				error_log('Elementor forms Sendinblue integration - Successfully unsubscribed email: ' . $email_to_unsubscribe);
+			} else {
+				error_log('Elementor forms Sendinblue integration - Failed to unsubscribe email: ' . $email_to_unsubscribe . ' (Status code: ' . $response_code . ')');
+			}
+			
+			// Log the complete response for detailed debugging
+			error_log('Elementor forms Sendinblue integration - Unsubscribe complete response: ' . wp_json_encode($unsubscribe_response)); 
+		}
 	}
 }
