@@ -47,6 +47,11 @@ Yes, Sendinblue has changed it name and branding to Brevo. The integration will 
 
 ## Changelog
 
+### 1.6.2 - 07-11-2025
+* Tested Elementor up to 3.32.5
+* Tested Elementor PRO up to 3.32.3
+* Tested WordPress up to 6.8.3
+
 ### 1.6.1 - 17-05-2025
 * Tested Elementor up to 3.28.4
 * Tested Elementor PRO up to 3.28.4

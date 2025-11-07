@@ -2,9 +2,9 @@
 Contributors: webtica
 Tags: sendinblue, brevo, elementor, elementor pro, forms
 Requires at least: 5.0
-Tested up to: 6.8.1
+Tested up to: 6.8.3
 Requires PHP: 7.0
-Stable tag: 1.6.1
+Stable tag: 1.6.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -56,6 +56,11 @@ Yes, all the other form widget integrations will be available.
 Yes, Sendinblue has changed it name and branding to Brevo. The integration will still work.
 
 == Changelog ==
+
+= 1.6.2 - 2025-11-07 =
+* Tested Elementor up to 3.32.5
+* Tested Elementor PRO up to 3.32.3
+* Tested WordPress up to 6.8.3
 
 = 1.6.1 - 2025-05-17 =
 * Tested Elementor up to 3.28.4
