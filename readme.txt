@@ -4,7 +4,7 @@ Tags: sendinblue, brevo, elementor, elementor pro, forms
 Requires at least: 5.0
 Tested up to: 6.8.3
 Requires PHP: 7.0
-Stable tag: 1.6.2
+Stable tag: 2.0.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -56,6 +56,13 @@ Yes, all the other form widget integrations will be available.
 Yes, Sendinblue has changed it name and branding to Brevo. The integration will still work.
 
 == Changelog ==
+
+= 2.0.0 - 2025-11-10 =
+* Added Dynamic Field Mapping - Brevo attributes are now automatically fetched from your account and selectable via a dropdown
+* Added Automatic Migration System - Seamlessly upgrades from version 1.x.x and map attributes that are previously set
+* Multi-API Key Support - Fetches attributes from both global and form-specific API keys
+* Tested Elementor up to 3.33.0
+* Tested Elementor PRO up to 3.33.0
 
 = 1.6.2 - 2025-11-07 =
 * Tested Elementor up to 3.32.5

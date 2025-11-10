@@ -2,8 +2,12 @@
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; 
+	exit;
 }
+
+// Load migration class early to handle version upgrades
+include_once( dirname(__FILE__).'/includes/class-sendinblue-attributes-manager.php' );
+include_once( dirname(__FILE__).'/includes/class-sendinblue-migration.php' );
 
 add_action( 'elementor_pro/init', function() {
 	// Here its safe to include our action class file
