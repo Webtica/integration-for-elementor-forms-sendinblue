@@ -769,7 +769,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		if ($doubleoptin == "yes" && $emailexists == "no") {
 
 			$double_optin_body = [
-				"attributes" => $attributes,
+				"attributes" => (object)$attributes,
 				"includeListIds" => [(int)$settings['sendinblue_list']],
 				"templateId" => (int)$settings['sendinblue_double_optin_template'],
 				"redirectionUrl" => $doubleoptinurl,
@@ -804,7 +804,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		else {
 			// Prepare request body for regular contact addition
 			$contact_body = [
-				"attributes" => $attributes,
+				"attributes" => (object)$attributes,
 				"updateEnabled" => true,
 				"listIds" => [(int)$settings['sendinblue_list']],
 				"email" => $fields[$settings['sendinblue_email_field']]

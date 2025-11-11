@@ -42,33 +42,108 @@ class Sendinblue_Migration {
 	private function __construct() {
 		add_action( 'plugins_loaded', array( $this, 'check_version' ) );
 		add_action( 'admin_notices', array( $this, 'show_migration_notice' ) );
+		add_action( 'admin_init', array( $this, 'run_deferred_migration' ) );
 	}
 
 	/**
 	 * Check if migration is needed
 	 */
 	public function check_version() {
+		// Safety check: ensure WordPress is fully loaded
+		if ( ! function_exists( 'get_option' ) ) {
+			return;
+		}
+
 		$installed_version = get_option( self::VERSION_OPTION, '0.0.0' );
 
-		// If versions don't match, run migration
+		// If versions don't match, schedule migration to run in background
 		if ( version_compare( $installed_version, self::CURRENT_VERSION, '<' ) ) {
-			$this->run_migrations( $installed_version );
-			update_option( self::VERSION_OPTION, self::CURRENT_VERSION );
+			// Set a flag to run migration on next admin_init
+			set_transient( 'sendinblue_migration_pending', $installed_version, HOUR_IN_SECONDS );
 
-			// Set a flag to show migration notice
-			set_transient( 'sendinblue_migration_notice', true, 30 * DAY_IN_SECONDS );
+			// Update version immediately to prevent repeated checks
+			update_option( self::VERSION_OPTION, self::CURRENT_VERSION );
 		}
+	}
+
+	/**
+	 * Run deferred migration in background
+	 * This prevents timeouts during plugin activation
+	 */
+	public function run_deferred_migration() {
+		// Only run in admin and if migration is pending
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		// Don't run during plugin activation redirect
+		if ( isset( $_GET['activate'] ) || isset( $_GET['activate-multi'] ) ) {
+			return;
+		}
+
+		$from_version = get_transient( 'sendinblue_migration_pending' );
+
+		if ( false === $from_version ) {
+			return; // No migration pending
+		}
+
+		// Check if we're already processing (prevent concurrent runs)
+		if ( get_transient( 'sendinblue_migration_running' ) ) {
+			return;
+		}
+
+		// Set a lock
+		set_transient( 'sendinblue_migration_running', true, 5 * MINUTE_IN_SECONDS );
+
+		// Delete the pending transient
+		delete_transient( 'sendinblue_migration_pending' );
+
+		// Run the actual migration
+		$this->run_migrations( $from_version );
+
+		// Release the lock
+		delete_transient( 'sendinblue_migration_running' );
+
+		// Set a flag to show migration notice
+		set_transient( 'sendinblue_migration_notice', true, 30 * DAY_IN_SECONDS );
 	}
 
 	/**
 	 * Show admin notice after migration
 	 */
 	public function show_migration_notice() {
-		if ( ! get_transient( 'sendinblue_migration_notice' ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
-		if ( ! current_user_can( 'manage_options' ) ) {
+		// Show pending migration notice
+		if ( get_transient( 'sendinblue_migration_pending' ) ) {
+			?>
+			<div class="notice notice-info">
+				<p>
+					<strong><?php _e( 'Sendinblue Elementor Integration:', 'sendinblue-elementor-integration' ); ?></strong>
+					<?php _e( 'Plugin updated to version 2.0.0. Migration will run automatically on your next page load.', 'sendinblue-elementor-integration' ); ?>
+				</p>
+			</div>
+			<?php
+			return;
+		}
+
+		// Show running migration notice
+		if ( get_transient( 'sendinblue_migration_running' ) ) {
+			?>
+			<div class="notice notice-info">
+				<p>
+					<strong><?php _e( 'Sendinblue Elementor Integration:', 'sendinblue-elementor-integration' ); ?></strong>
+					<?php _e( 'Migration in progress... This may take a few moments.', 'sendinblue-elementor-integration' ); ?>
+				</p>
+			</div>
+			<?php
+			return;
+		}
+
+		// Show completed migration notice
+		if ( ! get_transient( 'sendinblue_migration_notice' ) ) {
 			return;
 		}
 
@@ -133,38 +208,52 @@ class Sendinblue_Migration {
 			$attributes_manager->clear_cache();
 		}
 
-		// Get all posts that contain Elementor data
-		$posts = $wpdb->get_results(
-			"SELECT post_id, meta_value
-			FROM {$wpdb->postmeta}
-			WHERE meta_key = '_elementor_data'"
-		);
-
-		if ( empty( $posts ) ) {
-			return;
-		}
-
 		$migrated_count = 0;
 		$missing_attributes = array();
+		$offset = 0;
+		$batch_size = 50; // Process 50 posts at a time to prevent memory issues
 
-		foreach ( $posts as $post ) {
-			$elementor_data = json_decode( $post->meta_value, true );
+		// Process posts in batches to avoid memory exhaustion on large sites
+		do {
+			// Get a batch of posts that contain Elementor data
+			$posts = $wpdb->get_results( $wpdb->prepare(
+				"SELECT post_id, meta_value
+				FROM {$wpdb->postmeta}
+				WHERE meta_key = '_elementor_data'
+				LIMIT %d OFFSET %d",
+				$batch_size,
+				$offset
+			) );
 
-			if ( empty( $elementor_data ) || ! is_array( $elementor_data ) ) {
-				continue;
+			if ( empty( $posts ) ) {
+				break;
 			}
 
-			$modified = false;
+			foreach ( $posts as $post ) {
+				$elementor_data = json_decode( $post->meta_value, true );
 
-			// Recursively search for form widgets with Sendinblue integration
-			$elementor_data = $this->migrate_elementor_data( $elementor_data, $modified, $missing_attributes );
+				if ( empty( $elementor_data ) || ! is_array( $elementor_data ) ) {
+					continue;
+				}
 
-			// If we modified the data, save it back
-			if ( $modified ) {
-				update_metadata( 'post', $post->post_id, '_elementor_data', wp_slash( wp_json_encode( $elementor_data ) ) );
-				$migrated_count++;
+				$modified = false;
+
+				// Recursively search for form widgets with Sendinblue integration
+				$elementor_data = $this->migrate_elementor_data( $elementor_data, $modified, $missing_attributes );
+
+				// If we modified the data, save it back
+				if ( $modified ) {
+					update_metadata( 'post', $post->post_id, '_elementor_data', wp_slash( wp_json_encode( $elementor_data ) ) );
+					$migrated_count++;
+				}
 			}
-		}
+
+			$offset += $batch_size;
+
+			// Free up memory after each batch
+			wp_cache_flush();
+
+		} while ( count( $posts ) === $batch_size );
 
 		// Log migration results if WP_DEBUG is enabled
 		if ( WP_DEBUG === true ) {
@@ -349,5 +438,7 @@ class Sendinblue_Migration {
 	}
 }
 
-// Initialize migration
-Sendinblue_Migration::get_instance();
+// Initialize migration - only after plugins are loaded to ensure WordPress core is ready
+add_action( 'plugins_loaded', function() {
+	Sendinblue_Migration::get_instance();
+}, 5 ); // Priority 5 to run early but after core is loaded
