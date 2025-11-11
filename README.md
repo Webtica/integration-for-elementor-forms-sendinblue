@@ -47,6 +47,9 @@ Yes, Sendinblue has changed it name and branding to Brevo. The integration will 
 
 ## Changelog
 
+### 2.0.1 - 11-11-2025 
+* Hotfix - Fix 500 error - Prevent plugin to time out database when migration is happening.
+
 ### 2.0.0 - 10-11-2025
 * Added Dynamic Field Mapping - Brevo attributes are now automatically fetched from your account and selectable via a dropdown
 * Added Automatic Migration System - Seamlessly upgrades from version 1.x.x and map attributes that are previously set
