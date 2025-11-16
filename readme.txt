@@ -4,7 +4,7 @@ Tags: sendinblue, brevo, elementor, elementor pro, forms
 Requires at least: 5.0
 Tested up to: 6.8.3
 Requires PHP: 7.0
-Stable tag: 2.0.1
+Stable tag: 2.1.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -55,7 +55,19 @@ Yes, all the other form widget integrations will be available.
 
 Yes, Sendinblue has changed it name and branding to Brevo. The integration will still work.
 
+**How do I configure SMS or WHATSAPP fields?**
+
+Select SMS or WHATSAPP as the attribute in either the Name or Lastname field mapping. When selected, a country code field will automatically appear where you can set your default country code (e.g., 32 for Belgium, 1 for USA). The plugin will automatically format phone numbers from local format (e.g., 0471234567) to international format (e.g., 32471234567).
+
 == Changelog ==
+
+= 2.1.0 - 2025-11-16 =
+* Added Automatic Phone Number Formatting for SMS and WHATSAPP attributes
+* Country code field appears automatically when SMS or WHATSAPP attribute is selected
+* Smart format detection preserves international formats (+32xxx, 0032xxx)
+* Debug logging for phone formatting when WP_DEBUG is enabled
+* Dynamic tags support for country code field
+* Tested Elementor PRO up to 3.33.1
 
 = 2.0.1 - 2025-11-11 =
 * Hotfix - Fix 500 error - Prevent plugin to time out database when migration is happening.

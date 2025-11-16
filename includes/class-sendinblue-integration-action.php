@@ -16,6 +16,72 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 	}
 
 	/**
+	 * Format phone number for Brevo SMS/WHATSAPP attributes
+	 *
+	 * Converts local phone numbers to international format required by Brevo API.
+	 * Examples (with default country code 32 for Belgium):
+	 * - "0471234567" becomes "32471234567"
+	 * - "+32471234567" stays "+32471234567"
+	 * - "0032471234567" stays "0032471234567"
+	 * - "32471234567" stays "32471234567"
+	 *
+	 * @param string $phone_number The phone number to format
+	 * @param string $default_country_code The country code to use (default: '32' for Belgium)
+	 * @return string The formatted phone number
+	 */
+	private function format_phone_number( $phone_number, $default_country_code = '32' ) {
+		$phone = trim( $phone_number );
+
+		// Check if it starts with + (keep it as is but clean up)
+		$has_plus = ( substr( $phone, 0, 1 ) === '+' );
+
+		// Remove all non-numeric characters
+		$phone = preg_replace( '/[^0-9]/', '', $phone );
+
+		if ( empty( $phone ) ) {
+			return $phone_number;
+		}
+
+		// If original had +, return with + prefix
+		if ( $has_plus ) {
+			return '+' . $phone;
+		}
+
+		// If starts with 00, it's already international format
+		if ( substr( $phone, 0, 2 ) === '00' ) {
+			return $phone;
+		}
+
+		// If starts with country code already, return as is
+		if ( strlen( $phone ) > strlen( $default_country_code ) &&
+		     substr( $phone, 0, strlen( $default_country_code ) ) === $default_country_code ) {
+			return $phone;
+		}
+
+		// If starts with 0, remove leading 0 and prepend country code
+		if ( substr( $phone, 0, 1 ) === '0' ) {
+			$phone = $default_country_code . substr( $phone, 1 );
+			return $phone;
+		}
+
+		// Otherwise, prepend country code
+		$phone = $default_country_code . $phone;
+
+		return $phone;
+	}
+
+	/**
+	 * Check if attribute is a phone-related attribute (SMS or WHATSAPP)
+	 *
+	 * @param string $attribute_name The attribute name to check
+	 * @return bool True if it's a phone attribute
+	 */
+	private function is_phone_attribute( $attribute_name ) {
+		$phone_attributes = array( 'SMS', 'WHATSAPP', 'sms', 'whatsapp', 'Sms', 'Whatsapp' );
+		return in_array( $attribute_name, $phone_attributes, true );
+	}
+
+	/**
 	 * Get Name
 	 *
 	 * Return the action name
@@ -517,7 +583,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			'sms_field_note',
 			[
 				'type' => \Elementor\Controls_Manager::RAW_HTML,
-				'raw' => __('Using SMS? - Be sure that you format the number to a 0032xxxxx format. This is mandatory to make the field work with the SIB API. <a href="https://developers.sendinblue.com/reference/createcontact" target="_blank">More info</a>', 'sendinblue-elementor-integration'),
+				'raw' => __('<strong>SMS/WHATSAPP Support:</strong> When you select SMS or WHATSAPP as an attribute, phone numbers are automatically formatted for the Brevo API. A country code field will appear where you can set your default country code (e.g., 32 for Belgium).', 'sendinblue-elementor-integration'),
 			]
 		);
 
@@ -548,6 +614,30 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		);
 
 		$widget->add_control(
+			'sendinblue_name_country_code',
+			[
+				'label' => __( 'Country Code for Phone Formatting', 'sendinblue-elementor-integration' ),
+				'type' => \Elementor\Controls_Manager::TEXT,
+				'placeholder' => '32',
+				'default' => '32',
+				'label_block' => false,
+				'description' => __( 'Enter country code without + or 00 (e.g., 32 for Belgium, 1 for USA, 91 for India). Example: 0471234567 becomes 32471234567', 'sendinblue-elementor-integration' ),
+				'dynamic' => [
+					'active' => true,
+				],
+				'conditions' => [
+					'terms' => [
+						[
+							'name' => 'sendinblue_name_attribute_field',
+							'operator' => 'in',
+							'value' => [ 'SMS', 'WHATSAPP', 'sms', 'whatsapp', 'Sms', 'Whatsapp' ],
+						],
+					],
+				],
+			]
+		);
+
+		$widget->add_control(
 			'sendinblue_last_name_attribute_field',
 			[
 				'label' => __( 'Lastname Field attribute (Optional)', 'sendinblue-elementor-integration' ),
@@ -569,6 +659,30 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				'description' => __( 'Enter the lastname field id - you can find this under the lastname field advanced tab', 'sendinblue-elementor-integration' ),
 				'dynamic' => [
 					'active' => true,
+				],
+			]
+		);
+
+		$widget->add_control(
+			'sendinblue_last_name_country_code',
+			[
+				'label' => __( 'Country Code for Phone Formatting', 'sendinblue-elementor-integration' ),
+				'type' => \Elementor\Controls_Manager::TEXT,
+				'placeholder' => '32',
+				'default' => '32',
+				'label_block' => false,
+				'description' => __( 'Enter country code without + or 00 (e.g., 32 for Belgium, 1 for USA, 91 for India). Example: 0471234567 becomes 32471234567', 'sendinblue-elementor-integration' ),
+				'dynamic' => [
+					'active' => true,
+				],
+				'conditions' => [
+					'terms' => [
+						[
+							'name' => 'sendinblue_last_name_attribute_field',
+							'operator' => 'in',
+							'value' => [ 'SMS', 'WHATSAPP', 'sms', 'whatsapp', 'Sms', 'Whatsapp' ],
+						],
+					],
 				],
 			]
 		);
@@ -614,8 +728,10 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			$element['sendinblue_email_field'],
 			$element['sendinblue_name_attribute_field'],
 			$element['sendinblue_name_field'],
+			$element['sendinblue_name_country_code'],
 			$element['sendinblue_last_name_attribute_field'],
-			$element['sendinblue_last_name_field']
+			$element['sendinblue_last_name_field'],
+			$element['sendinblue_last_name_country_code']
 		);
 
 		return $element;
@@ -721,14 +837,58 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		if ( ! empty( $settings['sendinblue_name_attribute_field'] ) &&
 		     ! empty( $settings['sendinblue_name_field'] ) &&
 		     isset( $fields[$settings['sendinblue_name_field']] ) ) {
-			$attributes[$settings['sendinblue_name_attribute_field']] = $fields[$settings['sendinblue_name_field']];
+			$name_value = $fields[$settings['sendinblue_name_field']];
+
+			// Auto-format phone numbers for SMS and WHATSAPP attributes
+			if ( $this->is_phone_attribute( $settings['sendinblue_name_attribute_field'] ) && ! empty( $name_value ) ) {
+				$country_code = ! empty( $settings['sendinblue_name_country_code'] )
+					? preg_replace( '/[^0-9]/', '', $settings['sendinblue_name_country_code'] )
+					: '32';
+
+				$original_value = $name_value;
+				$name_value = $this->format_phone_number( $name_value, $country_code );
+
+				if( WP_DEBUG === true ) {
+					error_log( sprintf(
+						'Elementor forms Sendinblue integration - Phone formatting for %s: "%s" -> "%s" (country code: %s)',
+						$settings['sendinblue_name_attribute_field'],
+						$original_value,
+						$name_value,
+						$country_code
+					) );
+				}
+			}
+
+			$attributes[$settings['sendinblue_name_attribute_field']] = $name_value;
 		}
 
 		// Add lastname attribute if both attribute name and field ID are set
 		if ( ! empty( $settings['sendinblue_last_name_attribute_field'] ) &&
 		     ! empty( $settings['sendinblue_last_name_field'] ) &&
 		     isset( $fields[$settings['sendinblue_last_name_field']] ) ) {
-			$attributes[$settings['sendinblue_last_name_attribute_field']] = $fields[$settings['sendinblue_last_name_field']];
+			$lastname_value = $fields[$settings['sendinblue_last_name_field']];
+
+			// Auto-format phone numbers for SMS and WHATSAPP attributes
+			if ( $this->is_phone_attribute( $settings['sendinblue_last_name_attribute_field'] ) && ! empty( $lastname_value ) ) {
+				$country_code = ! empty( $settings['sendinblue_last_name_country_code'] )
+					? preg_replace( '/[^0-9]/', '', $settings['sendinblue_last_name_country_code'] )
+					: '32';
+
+				$original_value = $lastname_value;
+				$lastname_value = $this->format_phone_number( $lastname_value, $country_code );
+
+				if( WP_DEBUG === true ) {
+					error_log( sprintf(
+						'Elementor forms Sendinblue integration - Phone formatting for %s: "%s" -> "%s" (country code: %s)',
+						$settings['sendinblue_last_name_attribute_field'],
+						$original_value,
+						$lastname_value,
+						$country_code
+					) );
+				}
+			}
+
+			$attributes[$settings['sendinblue_last_name_attribute_field']] = $lastname_value;
 		}
 
 		//Check if user already exists

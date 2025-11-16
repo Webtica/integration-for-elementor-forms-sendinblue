@@ -45,9 +45,21 @@ Yes, all the other form widget integrations will be available.
 
 Yes, Sendinblue has changed it name and branding to Brevo. The integration will still work.
 
+**How do I configure SMS or WHATSAPP fields?**
+
+Select SMS or WHATSAPP as the attribute in either the Name or Lastname field mapping. When selected, a country code field will automatically appear where you can set your default country code (e.g., 32 for Belgium, 1 for USA). The plugin will automatically format phone numbers from local format (e.g., 0471234567) to international format (e.g., 32471234567).
+
 ## Changelog
 
-### 2.0.1 - 11-11-2025 
+### 2.1.0 - 16-11-2025
+* Added Automatic Phone Number Formatting for SMS and WHATSAPP attributes
+* Country code field appears automatically when SMS or WHATSAPP attribute is selected
+* Smart format detection preserves international formats (+32xxx, 0032xxx)
+* Debug logging for phone formatting when WP_DEBUG is enabled
+* Dynamic tags support for country code field
+* Tested Elementor PRO up to 3.33.1
+
+### 2.0.1 - 11-11-2025
 * Hotfix - Fix 500 error - Prevent plugin to time out database when migration is happening.
 
 ### 2.0.0 - 10-11-2025
