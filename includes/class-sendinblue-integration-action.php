@@ -204,8 +204,13 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 
 		// Add commonly used defaults if not fetched
 		if ( count( $options ) === 1 ) {
+			// English defaults
 			$options['FIRSTNAME'] = 'FIRSTNAME (text)';
 			$options['LASTNAME'] = 'LASTNAME (text)';
+			// German defaults
+			$options['VORNAME'] = 'VORNAME (text)';
+			$options['NACHNAME'] = 'NACHNAME (text)';
+			// Common attributes
 			$options['SMS'] = 'SMS (text)';
 			$options['OPT_IN'] = 'OPT_IN (boolean)';
 			$options['DOUBLE_OPT-IN'] = 'DOUBLE_OPT-IN (boolean)';

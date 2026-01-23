@@ -51,6 +51,12 @@ Select SMS or WHATSAPP as the attribute in either the Name or Lastname field map
 
 ## Changelog
 
+### 2.1.1 - 23-01-2026
+* Added german default fields to the fallback list for mapping
+* Tested Elementor up to 3.34.2
+* Tested Elementor PRO up to 3.34.2
+* Tested WordPress up to 6.9.0
+
 ### 2.1.0 - 16-11-2025
 * Added Automatic Phone Number Formatting for SMS and WHATSAPP attributes
 * Country code field appears automatically when SMS or WHATSAPP attribute is selected
