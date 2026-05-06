@@ -51,6 +51,11 @@ Select SMS or WHATSAPP as the attribute in either the Name or Lastname field map
 
 ## Changelog
 
+### 2.1.2 - 06-05-2026
+* Tested Elementor up to 4.0.7
+* Tested Elementor PRO up to 4.0.4
+* Tested WordPress up to 6.9.4
+
 ### 2.1.1 - 23-01-2026
 * Added german default fields to the fallback list for mapping
 * Tested Elementor up to 3.34.2
