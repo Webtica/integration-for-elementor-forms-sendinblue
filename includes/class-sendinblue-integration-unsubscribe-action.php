@@ -73,7 +73,7 @@ class Sendinblue_Integration_Unsubscribe_Action_After_Submit extends \ElementorP
 				'type' => \Elementor\Controls_Manager::RAW_HTML,
 				'raw' => __('You can set your global API key <a href="' . admin_url( 'options-general.php?page=webtica-sendinblue-free' ) . '" target="_blank">here.</a> this means you only need to set your Sendinblue API key once.', 'sendinblue-elementor-integration'),
 				'condition' => array(
-					'sendinblue_use_global_api_key' => 'yes',
+					'sendinblue_unsubscribe_use_global_api_key' => 'yes',
     			),
 			]
 		);
@@ -114,7 +114,7 @@ class Sendinblue_Integration_Unsubscribe_Action_After_Submit extends \ElementorP
 				'separator' => 'before',
 				'description' => __( 'Enter the acceptance checkbox field id - you can find this under the acceptance field advanced tab - if the acceptance checkbox is not checked then the email and extra information will not be added to the list', 'sendinblue-elementor-integration' ),
     			'condition' => array(
-    				'sendinblue_gdpr_checkbox' => 'yes',
+    				'sendinblue_unsubscribe_gdpr_checkbox' => 'yes',
     			),
 				'dynamic' => [
 					'active' => true,
@@ -170,7 +170,6 @@ class Sendinblue_Integration_Unsubscribe_Action_After_Submit extends \ElementorP
 			$element['sendinblue_unsubscribe_api'],
 			$element['sendinblue_unsubscribe_gdpr_checkbox'],
 			$element['sendinblue_unsubscribe_gdpr_checkbox_field'],
-			$element['sendinblue_unsubscribe_list'],
 			$element['sendinblue_unsubscribe_email_field']
 		);
 

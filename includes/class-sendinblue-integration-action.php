@@ -755,7 +755,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		$settings = $record->get( 'form_settings' );
 
 		//Global key
-		$useglobalkey = $settings['sendinblue_use_global_api_key'];
+		$useglobalkey = isset( $settings['sendinblue_use_global_api_key'] ) ? $settings['sendinblue_use_global_api_key'] : '';
 		if ($useglobalkey == "yes") {
 			$webtica_sendinblue_options = get_option( 'webtica_sendinblue_option_name' );
 			$globalapikey = $webtica_sendinblue_options['global_api_key_webtica_sendinblue'];
@@ -782,18 +782,16 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		}
 
 		//Check double optin fields
-		$doubleoptin = $settings['sendinblue_double_optin'];
+		$doubleoptinurl = get_site_url(); // Default URL — overridden below if a custom redirect is set
+		$doubleoptin = isset( $settings['sendinblue_double_optin'] ) ? $settings['sendinblue_double_optin'] : '';
 		if ($doubleoptin == "yes") {
 			//  Make sure that there is a Sendinblue double optin ID if switch is set
 			if ( empty( $settings['sendinblue_double_optin_template'] ) ) {
 				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue double optin template ID not set.'); }
 				return;
 			}
-			//  Make sure that there is a Sendinblue double optin redirect URL else set default url
-			if ( empty( $settings['sendinblue_double_optin_redirect_url'] ) ) {
-				$doubleoptinurl = get_site_url();
-			}
-			else {
+			//  Use custom redirect URL if provided, otherwise keep the site URL default set above
+			if ( ! empty( $settings['sendinblue_double_optin_redirect_url'] ) ) {
 				$doubleoptinurl = $settings['sendinblue_double_optin_redirect_url'];
 			}
 		}
@@ -814,7 +812,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		}
 
 		//GDPR Checkbox
-		$gdprcheckbox = $settings['sendinblue_gdpr_checkbox'];
+		$gdprcheckbox = isset( $settings['sendinblue_gdpr_checkbox'] ) ? $settings['sendinblue_gdpr_checkbox'] : '';
 		if ($gdprcheckbox == "yes") {
 			//  Make sure that there is a acceptence field if switch is set
 			if ( empty( $settings['sendinblue_gdpr_checkbox_field'] ) ) {
@@ -822,7 +820,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				return;
 			}
 			// Make sure that checkbox is on
-			$gdprcheckboxchecked = $fields[$settings['sendinblue_gdpr_checkbox_field']];
+			$gdprcheckboxchecked = isset( $fields[ $settings['sendinblue_gdpr_checkbox_field'] ] ) ? $fields[ $settings['sendinblue_gdpr_checkbox_field'] ] : '';
 			if ($gdprcheckboxchecked != "on") {
 				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - GDPR Checkbox was not thicked.'); }
 				return;
@@ -897,7 +895,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		}
 
 		//Check if user already exists
-		$emailexistsswitch = $settings['sendinblue_double_optin_check_if_email_exists'];
+		$emailexistsswitch = isset( $settings['sendinblue_double_optin_check_if_email_exists'] ) ? $settings['sendinblue_double_optin_check_if_email_exists'] : '';
 		if ($emailexistsswitch == "yes") {
 
 			$requesturl = 'https://api.brevo.com/v3/contacts/'.urlencode($fields[$settings['sendinblue_email_field']]);

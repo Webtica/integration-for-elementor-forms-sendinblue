@@ -62,6 +62,11 @@ Select SMS or WHATSAPP as the attribute in either the Name or Lastname field map
 == Changelog ==
 
 = 2.1.2 - 2026-05-06 =
+* Fixed wrong condition keys in the Unsubscribe action causing the global API key note and GDPR field to never show or hide correctly in the Elementor editor
+* Fixed migration class CURRENT_VERSION constant being stale (was 2.0.0, now 2.1.2) which would have prevented future migrations from triggering
+* Fixed undefined index PHP notices in run() when settings keys are absent on newly created forms
+* Fixed $doubleoptinurl being potentially undefined when double opt-in is disabled
+* Fixed on_export() in the Unsubscribe action unsetting a field (sendinblue_unsubscribe_list) that was never registered as a control
 * Tested Elementor up to 4.0.7
 * Tested Elementor PRO up to 4.0.4
 * Tested WordPress up to 6.9.4

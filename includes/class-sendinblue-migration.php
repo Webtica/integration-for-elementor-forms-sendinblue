@@ -14,7 +14,7 @@ class Sendinblue_Migration {
 	/**
 	 * Current plugin version
 	 */
-	const CURRENT_VERSION = '2.0.0';
+	const CURRENT_VERSION = '2.1.2';
 
 	/**
 	 * Option name for storing plugin version
