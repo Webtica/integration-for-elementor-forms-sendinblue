@@ -140,6 +140,9 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		// Also clear saved custom attributes cache so it re-scans after Brevo attributes are refreshed
 		delete_transient( 'sendinblue_saved_custom_attributes' );
 
+		// Clear the cached form API-key list so it re-scans too
+		delete_transient( 'sendinblue_all_api_keys' );
+
 		wp_send_json_success();
 	}
 
@@ -160,7 +163,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		// Collect all unique API keys from global settings and forms
 		$api_keys = $this->get_all_api_keys();
 
-		if ( WP_DEBUG === true ) {
+		if ( webtica_sendinblue_free_debug_enabled() ) {
 			error_log( sprintf( 'Sendinblue: Found %d unique API key(s)', count( $api_keys ) ) );
 		}
 
@@ -175,7 +178,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 
 			$attributes = $attributes_manager->get_attributes( $api_key );
 
-			if ( WP_DEBUG === true ) {
+			if ( webtica_sendinblue_free_debug_enabled() ) {
 				error_log( sprintf( 'Sendinblue: Fetched %d attributes from API key ending in ...%s',
 					count( $attributes ),
 					substr( $api_key, -8 )
@@ -234,6 +237,12 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 	 * @return array Array of unique API keys
 	 */
 	private function get_all_api_keys() {
+		// Check cache first — this runs on every Elementor editor render.
+		$cached = get_transient( 'sendinblue_all_api_keys' );
+		if ( false !== $cached && is_array( $cached ) ) {
+			return $cached;
+		}
+
 		$api_keys = array();
 
 		// Get global API key
@@ -242,14 +251,18 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			$api_keys[] = $webtica_sendinblue_options['global_api_key_webtica_sendinblue'];
 		}
 
-		// Get form-specific API keys from database
+		// Get form-specific API keys from database.
+		// Filter by content so only forms using this integration are scanned
+		// (faster, and avoids the arbitrary row cap that could miss forms).
 		global $wpdb;
-		$posts = $wpdb->get_results(
+		$like = '%' . $wpdb->esc_like( 'sendinblue integration' ) . '%';
+		$posts = $wpdb->get_results( $wpdb->prepare(
 			"SELECT meta_value
 			FROM {$wpdb->postmeta}
 			WHERE meta_key = '_elementor_data'
-			LIMIT 100"
-		);
+			AND meta_value LIKE %s",
+			$like
+		) );
 
 		foreach ( $posts as $post ) {
 			$elementor_data = json_decode( $post->meta_value, true );
@@ -260,8 +273,13 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			$this->extract_api_keys( $elementor_data, $api_keys );
 		}
 
-		// Return unique API keys
-		return array_unique( array_filter( $api_keys ) );
+		// Unique keys, re-indexed.
+		$unique_keys = array_values( array_unique( array_filter( $api_keys ) ) );
+
+		// Cache for 1 hour; cleared alongside the attributes cache on refresh.
+		set_transient( 'sendinblue_all_api_keys', $unique_keys, HOUR_IN_SECONDS );
+
+		return $unique_keys;
 	}
 
 	/**
@@ -315,15 +333,17 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 
 		$attribute_names = array();
 
-		// Get all Elementor data
-		$posts = $wpdb->get_results(
+		// Get Elementor data only for forms using this integration.
+		$like = '%' . $wpdb->esc_like( 'sendinblue integration' ) . '%';
+		$posts = $wpdb->get_results( $wpdb->prepare(
 			"SELECT meta_value
 			FROM {$wpdb->postmeta}
 			WHERE meta_key = '_elementor_data'
-			LIMIT 100"
-		);
+			AND meta_value LIKE %s",
+			$like
+		) );
 
-		if ( WP_DEBUG === true ) {
+		if ( webtica_sendinblue_free_debug_enabled() ) {
 			error_log( sprintf( 'Sendinblue: Scanning %d posts for custom attributes', count( $posts ) ) );
 		}
 
@@ -338,7 +358,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 
 		$unique_attributes = array_unique( $attribute_names );
 
-		if ( WP_DEBUG === true ) {
+		if ( webtica_sendinblue_free_debug_enabled() ) {
 			error_log( sprintf( 'Sendinblue: Found %d unique custom attributes: %s', count( $unique_attributes ), implode( ', ', $unique_attributes ) ) );
 		}
 
@@ -760,7 +780,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			$webtica_sendinblue_options = get_option( 'webtica_sendinblue_option_name' );
 			$globalapikey = $webtica_sendinblue_options['global_api_key_webtica_sendinblue'];
 			if ( empty( $globalapikey ) ) {
-				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue Global API Key not set.'); }
+				if( webtica_sendinblue_free_debug_enabled() ) { error_log('Elementor forms Sendinblue integration - Sendinblue Global API Key not set.'); }
 				return;
 			}
 			else {
@@ -770,14 +790,14 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		else {
 			//  Make sure that there is an Sendinblue API key set
 			if ( empty( $settings['sendinblue_api'] ) ) {
-				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue API Key not set.'); }
+				if( webtica_sendinblue_free_debug_enabled() ) { error_log('Elementor forms Sendinblue integration - Sendinblue API Key not set.'); }
 				return;
 			}
 		}
 
 		//  Make sure that there is a Sendinblue list ID
 		if ( empty( $settings['sendinblue_list'] ) ) {
-			if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue list ID not set.'); }
+			if( webtica_sendinblue_free_debug_enabled() ) { error_log('Elementor forms Sendinblue integration - Sendinblue list ID not set.'); }
 			return;
 		}
 
@@ -787,7 +807,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		if ($doubleoptin == "yes") {
 			//  Make sure that there is a Sendinblue double optin ID if switch is set
 			if ( empty( $settings['sendinblue_double_optin_template'] ) ) {
-				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue double optin template ID not set.'); }
+				if( webtica_sendinblue_free_debug_enabled() ) { error_log('Elementor forms Sendinblue integration - Sendinblue double optin template ID not set.'); }
 				return;
 			}
 			//  Use custom redirect URL if provided, otherwise keep the site URL default set above
@@ -798,7 +818,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 
 		// Make sure that there is a Sendinblue Email field ID
 		if ( empty( $settings['sendinblue_email_field'] ) ) {
-			if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue e-mail field ID not set.'); }
+			if( webtica_sendinblue_free_debug_enabled() ) { error_log('Elementor forms Sendinblue integration - Sendinblue e-mail field ID not set.'); }
 			return;
 		}
 
@@ -816,20 +836,20 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		if ($gdprcheckbox == "yes") {
 			//  Make sure that there is a acceptence field if switch is set
 			if ( empty( $settings['sendinblue_gdpr_checkbox_field'] ) ) {
-				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Acceptence field ID is not set.'); }
+				if( webtica_sendinblue_free_debug_enabled() ) { error_log('Elementor forms Sendinblue integration - Acceptence field ID is not set.'); }
 				return;
 			}
 			// Make sure that checkbox is on
 			$gdprcheckboxchecked = isset( $fields[ $settings['sendinblue_gdpr_checkbox_field'] ] ) ? $fields[ $settings['sendinblue_gdpr_checkbox_field'] ] : '';
 			if ($gdprcheckboxchecked != "on") {
-				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - GDPR Checkbox was not thicked.'); }
+				if( webtica_sendinblue_free_debug_enabled() ) { error_log('Elementor forms Sendinblue integration - GDPR Checkbox was not thicked.'); }
 				return;
 			}
 		}
 
 		// Make sure that the user has an email
 		if ( empty( $fields[ $settings['sendinblue_email_field'] ] ) ) {
-			if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Client did not enter an e-mail.'); }
+			if( webtica_sendinblue_free_debug_enabled() ) { error_log('Elementor forms Sendinblue integration - Client did not enter an e-mail.'); }
 			return;
 		}
 
@@ -851,7 +871,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				$original_value = $name_value;
 				$name_value = $this->format_phone_number( $name_value, $country_code );
 
-				if( WP_DEBUG === true ) {
+				if( webtica_sendinblue_free_debug_enabled() ) {
 					error_log( sprintf(
 						'Elementor forms Sendinblue integration - Phone formatting for %s: "%s" -> "%s" (country code: %s)',
 						$settings['sendinblue_name_attribute_field'],
@@ -880,7 +900,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 				$original_value = $lastname_value;
 				$lastname_value = $this->format_phone_number( $lastname_value, $country_code );
 
-				if( WP_DEBUG === true ) {
+				if( webtica_sendinblue_free_debug_enabled() ) {
 					error_log( sprintf(
 						'Elementor forms Sendinblue integration - Phone formatting for %s: "%s" -> "%s" (country code: %s)',
 						$settings['sendinblue_last_name_attribute_field'],
@@ -904,7 +924,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			$request = wp_remote_request( $requesturl, array(
 					'method'      => 'GET',
 					'timeout'     => 45,
-					'httpversion' => '1.0',
+					'httpversion' => '1.1',
 					'blocking'    => true,
 					'headers'     => [
 						'accept' => 'application/json',
@@ -922,7 +942,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			}
 
 
-			if( WP_DEBUG === true ) {
+			if( webtica_sendinblue_free_debug_enabled() ) {
 				error_log('Elementor forms Sendinblue integration - Check email exists response: ' . wp_json_encode($request));
 			}
 		} else {
@@ -940,7 +960,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			];
 
 			// Log the double optin request body
-			if( WP_DEBUG === true ) {
+			if( webtica_sendinblue_free_debug_enabled() ) {
 				error_log('Elementor forms Sendinblue integration - Double optin request body: ' . wp_json_encode($double_optin_body));
 			}
 
@@ -948,7 +968,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			$double_optin_response = wp_remote_post( 'https://api.brevo.com/v3/contacts/doubleOptinConfirmation', array(
 				'method'      => 'POST',
 			    'timeout'     => 45,
-			    'httpversion' => '1.0',
+			    'httpversion' => '1.1',
 			    'blocking'    => true,
 			    'headers'     => [
 		            'accept' => 'application/json',
@@ -960,7 +980,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			);
 
 			// Log the double optin response
-			if( WP_DEBUG === true ) {
+			if( webtica_sendinblue_free_debug_enabled() ) {
 				error_log('Elementor forms Sendinblue integration - Double optin response: ' . wp_json_encode($double_optin_response));
 			}
 		}
@@ -974,7 +994,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			];
 
 			// Log the contact request body
-			if( WP_DEBUG === true ) {
+			if( webtica_sendinblue_free_debug_enabled() ) {
 				error_log('Elementor forms Sendinblue integration - Contact request body: ' . wp_json_encode($contact_body));
 			}
 
@@ -982,7 +1002,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			$contact_response = wp_remote_post( 'https://api.brevo.com/v3/contacts', array(
 				'method'      => 'POST',
 		    	'timeout'     => 45,
-		    	'httpversion' => '1.0',
+		    	'httpversion' => '1.1',
 		    	'blocking'    => true,
 		    	'headers'     => [
 	            	'accept' => 'application/json',
@@ -994,7 +1014,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			);
 
 			// Log the contact response
-			if( WP_DEBUG === true ) {
+			if( webtica_sendinblue_free_debug_enabled() ) {
 				error_log('Elementor forms Sendinblue integration - Contact response: ' . wp_json_encode($contact_response));
 			}
 		}

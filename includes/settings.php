@@ -67,6 +67,14 @@ class WebticaSendinblueFree {
 			'webtica-sendinblue-admin', // page
 			'webtica_sendinblue_setting_section' // section
 		);
+
+		add_settings_field(
+			'debug_logging_webtica_sendinblue', // id
+			'Debug logging', // title
+			array( $this, 'debug_logging_webtica_sendinblue_callback' ), // callback
+			'webtica-sendinblue-admin', // page
+			'webtica_sendinblue_setting_section' // section
+		);
 	}
 
 	public function webtica_sendinblue_sanitize($input) {
@@ -75,6 +83,9 @@ class WebticaSendinblueFree {
 		if ( isset( $input['global_api_key_webtica_sendinblue'] ) ) {
 			$sanitary_values['global_api_key_webtica_sendinblue'] = sanitize_text_field( $input['global_api_key_webtica_sendinblue'] );
 		}
+
+		// Debug logging checkbox: store '1' when ticked, empty otherwise.
+		$sanitary_values['debug_logging_webtica_sendinblue'] = ( ! empty( $input['debug_logging_webtica_sendinblue'] ) ) ? '1' : '';
 
 		return $sanitary_values;
 	}
@@ -95,6 +106,22 @@ class WebticaSendinblueFree {
 				'<input class="regular-text" type="password" name="webtica_sendinblue_option_name[global_api_key_webtica_sendinblue]" id="global_api_key_webtica_sendinblue" value="%s">',
 				isset( $this->webtica_sendinblue_options['global_api_key_webtica_sendinblue'] ) ? esc_attr( $this->webtica_sendinblue_options['global_api_key_webtica_sendinblue']) : ''
 			);
+		}
+	}
+
+	public function debug_logging_webtica_sendinblue_callback() {
+		$forced_by_constant = ( defined( 'WEBTICA_SENDINBLUE_DEBUG' ) && WEBTICA_SENDINBLUE_DEBUG );
+		$checked            = ! empty( $this->webtica_sendinblue_options['debug_logging_webtica_sendinblue'] );
+
+		printf(
+			'<label><input type="checkbox" name="webtica_sendinblue_option_name[debug_logging_webtica_sendinblue]" id="debug_logging_webtica_sendinblue" value="1" %s %s> %s</label>',
+			checked( $checked, true, false ),
+			$forced_by_constant ? 'disabled' : '',
+			esc_html__( 'Write plugin debug messages to the WordPress debug.log file. Leave this off during normal operation; enable it only while troubleshooting.', 'sendinblue-elementor-integration' )
+		);
+
+		if ( $forced_by_constant ) {
+			echo '<p class="description" style="color:#dba617;">' . esc_html__( 'Debug logging is currently forced ON by the WEBTICA_SENDINBLUE_DEBUG constant defined in wp-config.php.', 'sendinblue-elementor-integration' ) . '</p>';
 		}
 	}
 

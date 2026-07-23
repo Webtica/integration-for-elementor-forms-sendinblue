@@ -88,7 +88,7 @@ class Sendinblue_Integration_Unsubscribe_Action_After_Submit extends \ElementorP
 				'separator' => 'before',
 				'description' => __( 'Enter your V3 API key from Sendinblue', 'sendinblue-elementor-integration' ),
 				'condition' => array(
-					'sendinblue_use_global_api_key!' => 'yes',
+					'sendinblue_unsubscribe_use_global_api_key!' => 'yes',
     			),
 				'dynamic' => [
 					'active' => true,
@@ -189,12 +189,12 @@ class Sendinblue_Integration_Unsubscribe_Action_After_Submit extends \ElementorP
 		$settings = $record->get( 'form_settings' );
 
 		//Global key
-		$useglobalkey = $settings['sendinblue_unsubscribe_use_global_api_key'];
+		$useglobalkey = isset( $settings['sendinblue_unsubscribe_use_global_api_key'] ) ? $settings['sendinblue_unsubscribe_use_global_api_key'] : '';
 		if ($useglobalkey == "yes") {
 			$webtica_sendinblue_options = get_option( 'webtica_sendinblue_option_name' );
 			$globalapikey = $webtica_sendinblue_options['global_api_key_webtica_sendinblue'];
 			if ( empty( $globalapikey ) ) {
-				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue Global API Key not set.'); }
+				if( webtica_sendinblue_free_debug_enabled() ) { error_log('Elementor forms Sendinblue integration - Sendinblue Global API Key not set.'); }
 				return;
 			}
 			else {
@@ -204,14 +204,14 @@ class Sendinblue_Integration_Unsubscribe_Action_After_Submit extends \ElementorP
 		else {
 			//  Make sure that there is an Sendinblue API key set
 			if ( empty( $settings['sendinblue_unsubscribe_api'] ) ) {
-				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue API Key not set.'); }
+				if( webtica_sendinblue_free_debug_enabled() ) { error_log('Elementor forms Sendinblue integration - Sendinblue API Key not set.'); }
 				return;
 			}
 		}
 
 		// Make sure that there is a Sendinblue Email field ID
 		if ( empty( $settings['sendinblue_unsubscribe_email_field'] ) ) {
-			if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Sendinblue e-mail field ID not set.'); }
+			if( webtica_sendinblue_free_debug_enabled() ) { error_log('Elementor forms Sendinblue integration - Sendinblue e-mail field ID not set.'); }
 			return;
 		}
 
@@ -232,22 +232,22 @@ class Sendinblue_Integration_Unsubscribe_Action_After_Submit extends \ElementorP
 
 		// Make sure that the user has an email
 		if ( empty( $fields[ $settings['sendinblue_unsubscribe_email_field'] ] ) ) {
-			if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Client did not enter an e-mail.'); }
+			if( webtica_sendinblue_free_debug_enabled() ) { error_log('Elementor forms Sendinblue integration - Client did not enter an e-mail.'); }
 			return;
 		}
 
 		//GDPR Checkbox
-		$gdprcheckbox = $settings['sendinblue_unsubscribe_gdpr_checkbox'];
+		$gdprcheckbox = isset( $settings['sendinblue_unsubscribe_gdpr_checkbox'] ) ? $settings['sendinblue_unsubscribe_gdpr_checkbox'] : '';
 		if ($gdprcheckbox == "yes") {
 			//  Make sure that there is a acceptence field if switch is set
 			if ( empty( $settings['sendinblue_unsubscribe_gdpr_checkbox_field'] ) ) {
-				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - Acceptence field ID is not set.'); }
+				if( webtica_sendinblue_free_debug_enabled() ) { error_log('Elementor forms Sendinblue integration - Acceptence field ID is not set.'); }
 				return;
 			}
 			// Make sure that checkbox is on
-			$gdprcheckboxchecked = $fields[$settings['sendinblue_unsubscribe_gdpr_checkbox_field']];
+			$gdprcheckboxchecked = isset( $fields[ $settings['sendinblue_unsubscribe_gdpr_checkbox_field'] ] ) ? $fields[ $settings['sendinblue_unsubscribe_gdpr_checkbox_field'] ] : '';
 			if ($gdprcheckboxchecked != "on") {
-				if( WP_DEBUG === true ) { error_log('Elementor forms Sendinblue integration - GDPR Checkbox was not thicked.'); }
+				if( webtica_sendinblue_free_debug_enabled() ) { error_log('Elementor forms Sendinblue integration - GDPR Checkbox was not thicked.'); }
 				return;
 			}
 		}
@@ -259,7 +259,7 @@ class Sendinblue_Integration_Unsubscribe_Action_After_Submit extends \ElementorP
 		$requesturl = 'https://api.brevo.com/v3/contacts/'.urlencode($email_to_unsubscribe);
 		
 		// Log the unsubscribe request details
-		if( WP_DEBUG === true ) { 
+		if( webtica_sendinblue_free_debug_enabled() ) { 
 			error_log('Elementor forms Sendinblue integration - Beginning unsubscribe process');
 			error_log('Elementor forms Sendinblue integration - Unsubscribe request URL: ' . $requesturl); 
 			error_log('Elementor forms Sendinblue integration - Unsubscribe email: ' . $email_to_unsubscribe);
@@ -269,7 +269,7 @@ class Sendinblue_Integration_Unsubscribe_Action_After_Submit extends \ElementorP
 		$request_args = array(
 			'method'      => 'DELETE',
 			'timeout'     => 45,
-			'httpversion' => '1.0',
+			'httpversion' => '1.1',
 			'blocking'    => true, // Changed to true to get the response
 			'headers'     => [
 				'accept' => 'application/json',
@@ -280,7 +280,7 @@ class Sendinblue_Integration_Unsubscribe_Action_After_Submit extends \ElementorP
 		);
 		
 		// Log the request parameters
-		if( WP_DEBUG === true ) { 
+		if( webtica_sendinblue_free_debug_enabled() ) { 
 			error_log('Elementor forms Sendinblue integration - Unsubscribe request parameters: ' . wp_json_encode($request_args)); 
 		}
 		
@@ -288,7 +288,7 @@ class Sendinblue_Integration_Unsubscribe_Action_After_Submit extends \ElementorP
 		$unsubscribe_response = wp_remote_request( $requesturl, $request_args );
 		
 		// Log the response
-		if( WP_DEBUG === true ) { 
+		if( webtica_sendinblue_free_debug_enabled() ) { 
 			$response_code = wp_remote_retrieve_response_code( $unsubscribe_response );
 			$response_body = wp_remote_retrieve_body( $unsubscribe_response );
 			

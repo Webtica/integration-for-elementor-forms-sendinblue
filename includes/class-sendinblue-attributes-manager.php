@@ -150,7 +150,7 @@ class Sendinblue_Attributes_Manager {
 	public function get_attributes( $api_key ) {
 
 		if ( empty( $api_key ) ) {
-			if ( WP_DEBUG === true ) {
+			if ( webtica_sendinblue_free_debug_enabled() ) {
 				error_log( 'Sendinblue Attributes Manager - Empty API key provided' );
 			}
 			return array();
@@ -160,26 +160,26 @@ class Sendinblue_Attributes_Manager {
 		$cached = get_transient( $cache_key );
 
 		if ( false !== $cached && is_array( $cached ) ) {
-			if ( WP_DEBUG === true ) {
+			if ( webtica_sendinblue_free_debug_enabled() ) {
 				error_log( sprintf( 'Sendinblue Attributes Manager - Returning %d cached attributes', count( $cached ) ) );
 			}
 			return $cached;
 		}
 
-		if ( WP_DEBUG === true ) {
+		if ( webtica_sendinblue_free_debug_enabled() ) {
 			error_log( 'Sendinblue Attributes Manager - Cache miss, fetching from API...' );
 		}
 
 		$attributes = $this->fetch_all_attributes( $api_key );
 
 		if ( is_wp_error( $attributes ) ) {
-			if ( WP_DEBUG === true ) {
+			if ( webtica_sendinblue_free_debug_enabled() ) {
 				error_log( 'Sendinblue Attributes Manager - Error fetching attributes: ' . $attributes->get_error_message() );
 			}
 			return array();
 		}
 
-		if ( WP_DEBUG === true ) {
+		if ( webtica_sendinblue_free_debug_enabled() ) {
 			error_log( sprintf( 'Sendinblue Attributes Manager - Successfully fetched %d attributes from API', count( $attributes ) ) );
 		}
 

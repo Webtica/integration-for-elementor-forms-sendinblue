@@ -2,9 +2,9 @@
 Contributors: webtica
 Tags: sendinblue, brevo, elementor, elementor pro, forms
 Requires at least: 5.0
-Tested up to: 6.9.4
+Tested up to: 7.0.2
 Requires PHP: 7.0
-Stable tag: 2.1.2
+Stable tag: 2.1.3
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -60,6 +60,19 @@ Yes, Sendinblue has changed it name and branding to Brevo. The integration will 
 Select SMS or WHATSAPP as the attribute in either the Name or Lastname field mapping. When selected, a country code field will automatically appear where you can set your default country code (e.g., 32 for Belgium, 1 for USA). The plugin will automatically format phone numbers from local format (e.g., 0471234567) to international format (e.g., 32471234567).
 
 == Changelog ==
+
+= 2.1.3 - 2026-07-23 =
+* Debug logging is now decoupled from WordPress' WP_DEBUG. Routine informational/cache messages no longer flood debug.log on sites that keep WP_DEBUG enabled. Logging is OFF by default and can be enabled with a new "Debug logging" checkbox on the settings page, or by defining the WEBTICA_SENDINBLUE_DEBUG constant in wp-config.php
+* Fixed the Unsubscribe action API key field using the wrong condition key, so it now shows/hides correctly based on the Unsubscribe global API key toggle
+* Fixed undefined index PHP notices in the Unsubscribe action run() when the global API key or GDPR settings are absent
+* Fixed the migration class version being hardcoded and going stale; the plugin version is now read directly from the plugin header so migrations always trigger correctly on future updates
+* Migration admin notices now display the actual plugin version instead of a hardcoded "2.0.0"
+* Performance: the form API-key list is now cached for one hour instead of being rebuilt from the database on every Elementor editor render (cleared by the "Clear Cache & Refresh" button)
+* Performance/correctness: attribute and migration database scans now filter to forms that actually use this integration and no longer cap at 100 rows, so forms are never silently skipped on larger sites
+* Switched outgoing Brevo API requests to HTTP/1.1
+* Tested Elementor up to 4.2.0
+* Tested Elementor PRO up to 4.2.0
+* Tested WordPress up to 7.0.2
 
 = 2.1.2 - 2026-05-06 =
 * Fixed wrong condition keys in the Unsubscribe action causing the global API key note and GDPR field to never show or hide correctly in the Elementor editor

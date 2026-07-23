@@ -12,9 +12,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Sendinblue_Migration {
 
 	/**
-	 * Current plugin version
+	 * Fallback plugin version, used only if the plugin header cannot be read.
+	 * The authoritative version is read from the main plugin file header via
+	 * get_current_version() so this constant can never drift out of sync again.
 	 */
-	const CURRENT_VERSION = '2.1.2';
+	const CURRENT_VERSION = '2.1.3';
 
 	/**
 	 * Option name for storing plugin version
@@ -25,6 +27,33 @@ class Sendinblue_Migration {
 	 * Singleton instance
 	 */
 	private static $instance = null;
+
+	/**
+	 * Get the current plugin version from the main plugin file header.
+	 * Falls back to the CURRENT_VERSION constant if it cannot be read.
+	 *
+	 * @return string
+	 */
+	public function get_current_version() {
+		static $version = null;
+
+		if ( null !== $version ) {
+			return $version;
+		}
+
+		$plugin_file = dirname( __FILE__ ) . '/../sendinblue-elementor-integration.php';
+
+		if ( function_exists( 'get_file_data' ) && file_exists( $plugin_file ) ) {
+			$data = get_file_data( $plugin_file, array( 'Version' => 'Version' ) );
+			if ( ! empty( $data['Version'] ) ) {
+				$version = $data['Version'];
+				return $version;
+			}
+		}
+
+		$version = self::CURRENT_VERSION;
+		return $version;
+	}
 
 	/**
 	 * Get singleton instance
@@ -55,14 +84,15 @@ class Sendinblue_Migration {
 		}
 
 		$installed_version = get_option( self::VERSION_OPTION, '0.0.0' );
+		$current_version   = $this->get_current_version();
 
 		// If versions don't match, schedule migration to run in background
-		if ( version_compare( $installed_version, self::CURRENT_VERSION, '<' ) ) {
+		if ( version_compare( $installed_version, $current_version, '<' ) ) {
 			// Set a flag to run migration on next admin_init
 			set_transient( 'sendinblue_migration_pending', $installed_version, HOUR_IN_SECONDS );
 
 			// Update version immediately to prevent repeated checks
-			update_option( self::VERSION_OPTION, self::CURRENT_VERSION );
+			update_option( self::VERSION_OPTION, $current_version );
 		}
 	}
 
@@ -122,7 +152,7 @@ class Sendinblue_Migration {
 			<div class="notice notice-info">
 				<p>
 					<strong><?php _e( 'Sendinblue Elementor Integration:', 'sendinblue-elementor-integration' ); ?></strong>
-					<?php _e( 'Plugin updated to version 2.0.0. Migration will run automatically on your next page load.', 'sendinblue-elementor-integration' ); ?>
+					<?php printf( esc_html__( 'Plugin updated to version %s. Migration will run automatically on your next page load.', 'sendinblue-elementor-integration' ), esc_html( $this->get_current_version() ) ); ?>
 				</p>
 			</div>
 			<?php
@@ -153,7 +183,7 @@ class Sendinblue_Migration {
 		<div class="notice notice-<?php echo ! empty( $missing_attributes ) ? 'warning' : 'success'; ?> is-dismissible">
 			<p>
 				<strong><?php _e( 'Sendinblue Elementor Integration:', 'sendinblue-elementor-integration' ); ?></strong>
-				<?php _e( 'Your forms have been successfully migrated to version 2.0.0.', 'sendinblue-elementor-integration' ); ?>
+				<?php printf( esc_html__( 'Your forms have been successfully migrated to version %s.', 'sendinblue-elementor-integration' ), esc_html( $this->get_current_version() ) ); ?>
 			</p>
 			<?php if ( ! empty( $missing_attributes ) ) : ?>
 				<p>
@@ -215,12 +245,17 @@ class Sendinblue_Migration {
 
 		// Process posts in batches to avoid memory exhaustion on large sites
 		do {
-			// Get a batch of posts that contain Elementor data
+			// Get a batch of posts that contain a form using this integration.
+			// The LIKE filter skips irrelevant Elementor pages; batching is kept
+			// to bound memory use on large sites.
+			$like = '%' . $wpdb->esc_like( 'sendinblue integration' ) . '%';
 			$posts = $wpdb->get_results( $wpdb->prepare(
 				"SELECT post_id, meta_value
 				FROM {$wpdb->postmeta}
 				WHERE meta_key = '_elementor_data'
+				AND meta_value LIKE %s
 				LIMIT %d OFFSET %d",
+				$like,
 				$batch_size,
 				$offset
 			) );
@@ -255,11 +290,11 @@ class Sendinblue_Migration {
 
 		} while ( count( $posts ) === $batch_size );
 
-		// Log migration results if WP_DEBUG is enabled
-		if ( WP_DEBUG === true ) {
+		// Log migration results if plugin debug logging is enabled
+		if ( webtica_sendinblue_free_debug_enabled() ) {
 			if ( $migrated_count > 0 ) {
 				error_log( sprintf(
-					'Sendinblue Elementor Integration: Migrated %d forms to version 2.0.0',
+					'Sendinblue Elementor Integration: Migrated %d forms to the 2.0.0 attribute-mapping format',
 					$migrated_count
 				) );
 			}
