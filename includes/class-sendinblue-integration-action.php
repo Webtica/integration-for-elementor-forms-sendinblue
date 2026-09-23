@@ -82,6 +82,101 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 	}
 
 	/**
+	 * Build a map of Brevo attribute name => attribute definition for an API key.
+	 *
+	 * Uses the (1 hour) cached attribute list from the attributes manager.
+	 *
+	 * @param string $api_key Brevo API key.
+	 * @return array
+	 */
+	private function get_attribute_definitions( $api_key ) {
+		$attributes_manager = Sendinblue_Attributes_Manager::get_instance();
+		$definitions        = $attributes_manager->get_attributes( $api_key );
+
+		return is_array( $definitions ) ? $definitions : array();
+	}
+
+	/**
+	 * Convert a submitted form value to a boolean for Brevo boolean attributes.
+	 *
+	 * Brevo silently ignores string values ("true", "Yes", ...) for boolean
+	 * attributes, so they must be sent as real JSON booleans.
+	 *
+	 * @param mixed $value Submitted value.
+	 * @return bool|null Boolean, or null when the value is not recognised.
+	 */
+	private function to_boolean( $value ) {
+		if ( is_bool( $value ) ) {
+			return $value;
+		}
+		if ( is_array( $value ) ) {
+			$value = implode( ',', $value );
+		}
+
+		$normalized = strtolower( trim( wp_strip_all_tags( (string) $value ) ) );
+
+		$true_values  = array( 'true', '1', 'yes', 'y', 'on', 'checked', 'ja', 'waar', 'oui', 'vrai', 'si', 'sí', 'wahr' );
+		$false_values = array( '', 'false', '0', 'no', 'n', 'off', 'unchecked', 'nee', 'onwaar', 'non', 'faux', 'nein', 'falsch' );
+
+		if ( in_array( $normalized, $true_values, true ) ) {
+			return true;
+		}
+		if ( in_array( $normalized, $false_values, true ) ) {
+			return false;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Cast a submitted value to the type Brevo expects for the attribute.
+	 *
+	 * @param mixed $value      Submitted value.
+	 * @param array $definition Attribute definition (name, type, category, enumeration).
+	 * @param bool  $skip       Set to true when the attribute should not be sent.
+	 * @return mixed
+	 */
+	private function cast_attribute_value( $value, $definition, &$skip ) {
+		$skip = false;
+		$type = isset( $definition['type'] ) ? strtolower( (string) $definition['type'] ) : '';
+
+		// Category attributes: Brevo expects the enumeration value (int), accept the label too.
+		if ( ! empty( $definition['enumeration'] ) && is_array( $definition['enumeration'] ) && '' !== trim( (string) $value ) ) {
+			$needle = strtolower( trim( (string) $value ) );
+			foreach ( $definition['enumeration'] as $option ) {
+				$opt_value = isset( $option['value'] ) ? $option['value'] : null;
+				$opt_label = isset( $option['label'] ) ? strtolower( trim( (string) $option['label'] ) ) : '';
+				if ( null !== $opt_value && ( (string) $opt_value === $needle || $opt_label === $needle ) ) {
+					return (int) $opt_value;
+				}
+			}
+			$skip = true;
+			return $value;
+		}
+
+		switch ( $type ) {
+			case 'boolean':
+				$bool = $this->to_boolean( $value );
+				if ( null === $bool ) {
+					$skip = true;
+					return $value;
+				}
+				return $bool;
+
+			case 'float':
+			case 'number':
+				$number = str_replace( array( ' ', ',' ), array( '', '.' ), trim( (string) $value ) );
+				if ( '' === $number || ! is_numeric( $number ) ) {
+					$skip = true;
+					return $value;
+				}
+				return ( false !== strpos( $number, '.' ) ) ? (float) $number : (int) $number;
+		}
+
+		return $value;
+	}
+
+	/**
 	 * Get Name
 	 *
 	 * Return the action name
@@ -135,6 +230,12 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		}
 
 		$attributes_manager = Sendinblue_Attributes_Manager::get_instance();
+
+		// Clear per API key first: works with persistent object caches (Redis/Memcached)
+		// where transients are not stored in the options table.
+		foreach ( $this->get_all_api_keys() as $api_key ) {
+			$attributes_manager->clear_cache( $api_key );
+		}
 		$attributes_manager->clear_cache();
 
 		// Also clear saved custom attributes cache so it re-scans after Brevo attributes are refreshed
@@ -778,7 +879,7 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 		$useglobalkey = isset( $settings['sendinblue_use_global_api_key'] ) ? $settings['sendinblue_use_global_api_key'] : '';
 		if ($useglobalkey == "yes") {
 			$webtica_sendinblue_options = get_option( 'webtica_sendinblue_option_name' );
-			$globalapikey = $webtica_sendinblue_options['global_api_key_webtica_sendinblue'];
+			$globalapikey = isset( $webtica_sendinblue_options['global_api_key_webtica_sendinblue'] ) ? $webtica_sendinblue_options['global_api_key_webtica_sendinblue'] : '';
 			if ( empty( $globalapikey ) ) {
 				if( webtica_sendinblue_free_debug_enabled() ) { error_log('Elementor forms Sendinblue integration - Sendinblue Global API Key not set.'); }
 				return;
@@ -912,6 +1013,35 @@ class Sendinblue_Integration_Action_After_Submit extends \ElementorPro\Modules\F
 			}
 
 			$attributes[$settings['sendinblue_last_name_attribute_field']] = $lastname_value;
+		}
+
+		// Cast values to the type Brevo expects (boolean, number, category)
+		if ( ! empty( $attributes ) ) {
+			$attribute_definitions = $this->get_attribute_definitions( $settings['sendinblue_api'] );
+
+			foreach ( $attributes as $attributename => $valuetosend ) {
+				if ( ! isset( $attribute_definitions[ $attributename ] ) ) {
+					continue;
+				}
+
+				$skip_attribute = false;
+				$cast_value     = $this->cast_attribute_value( $valuetosend, $attribute_definitions[ $attributename ], $skip_attribute );
+
+				if ( $skip_attribute ) {
+					unset( $attributes[ $attributename ] );
+					if( webtica_sendinblue_free_debug_enabled() ) {
+						error_log( sprintf(
+							'Elementor forms Sendinblue integration - Skipped attribute %s: value "%s" is not valid for Brevo type "%s"',
+							$attributename,
+							is_scalar( $valuetosend ) ? $valuetosend : wp_json_encode( $valuetosend ),
+							isset( $attribute_definitions[ $attributename ]['type'] ) ? $attribute_definitions[ $attributename ]['type'] : 'category'
+						) );
+					}
+					continue;
+				}
+
+				$attributes[ $attributename ] = $cast_value;
+			}
 		}
 
 		//Check if user already exists

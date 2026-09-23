@@ -51,6 +51,17 @@ Select SMS or WHATSAPP as the attribute in either the Name or Lastname field map
 
 ## Changelog
 
+### 2.1.4 - 23-09-2026
+* Fixed Brevo boolean attributes staying empty: values like "true", "Yes", "1", "on", "oui" and "ja" are now sent as a real JSON boolean (Brevo silently ignores string values for boolean attributes)
+* Number/float attributes are now sent as numbers ("12,5" becomes 12.5)
+* Category attributes now accept the option label or value and are sent as the Brevo enumeration value
+* Values that cannot be converted to the attribute type are now skipped (and logged when debug logging is on) instead of breaking the request
+* "Clear Cache & Refresh" now also clears the attribute cache on sites with a persistent object cache (Redis/Memcached)
+* Fixed undefined index notice when the global API key option is missing
+* Tested Elementor up to 4.3.0
+* Tested Elementor PRO up to 4.3.0
+* Tested WordPress up to 7.1.2
+
 ### 2.1.3 - 23-07-2026
 * Debug logging is now decoupled from WordPress' WP_DEBUG. Routine informational/cache messages no longer flood debug.log on sites that keep WP_DEBUG enabled. Logging is OFF by default and can be enabled with a new "Debug logging" checkbox on the settings page, or by defining the WEBTICA_SENDINBLUE_DEBUG constant in wp-config.php
 * Fixed the Unsubscribe action API key field using the wrong condition key, so it now shows/hides correctly based on the Unsubscribe global API key toggle
